@@ -77,43 +77,17 @@ function HeroSection() {
             </div>
           </div>
 
-          {/* Right - Photo Placeholder */}
+          {/* Right - Shashi Photo */}
           <ScrollReveal delay={160}>
             <div
               className="relative rounded-3xl overflow-hidden"
-              style={{
-                aspectRatio: "3/4",
-                background: "linear-gradient(135deg, #221a36 0%, #1a1a2e 100%)",
-              }}
+              style={{ aspectRatio: "3/4" }}
             >
-              {/* Glows */}
-              <div
-                className="absolute top-1/4 left-1/4 w-48 h-48 rounded-full"
-                style={{
-                  background:
-                    "radial-gradient(circle, rgba(124,92,191,0.3) 0%, transparent 70%)",
-                  filter: "blur(40px)",
-                }}
+              <img
+                src="/shashi-velath.jpg"
+                alt="Shashi Velath"
+                className="w-full h-full object-cover"
               />
-              <div
-                className="absolute bottom-1/3 right-1/4 w-40 h-40 rounded-full"
-                style={{
-                  background:
-                    "radial-gradient(circle, rgba(255,127,92,0.25) 0%, transparent 70%)",
-                  filter: "blur(40px)",
-                }}
-              />
-
-              {/* SV Text */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span
-                  className="text-[100px] font-black opacity-[0.18]"
-                  style={{ color: "#7C5CBF" }}
-                >
-                  SV
-                </span>
-              </div>
-
               {/* Bottom Bar */}
               <div
                 className="absolute bottom-0 left-0 right-0 py-3 px-5 text-center text-white text-xs font-bold tracking-wide"
