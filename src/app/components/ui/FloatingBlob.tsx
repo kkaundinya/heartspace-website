@@ -8,7 +8,7 @@ export function FloatingBlob({
   color: string;
   opacity?: number;
   size: { width: number; height: number };
-  position: { top?: string; bottom?: string; left?: string; right?: string };
+  position: { top?: string; bottom?: string; left?: string; right?: string; transform?: string };
   delay?: number;
 }) {
   return (
