@@ -164,12 +164,7 @@ function Chapter01Section() {
               </h2>
 
               {/* Decorative 01 */}
-              <div
-                className="absolute -top-4 -left-8 text-[120px] font-black pointer-events-none max-[900px]:hidden"
-                style={{ color: "var(--purple)", opacity: 0.06 }}
-              >
-                01
-              </div>
+              
             </div>
           </ScrollReveal>
 
@@ -378,25 +373,18 @@ function Chapter03Section() {
 
         {/* Chapter 03 Images */}
         <ScrollReveal delay={240}>
-          <div className="mt-16 grid grid-cols-3 max-[900px]:grid-cols-1 gap-6">
-            <div className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
+          <div className="mt-16 grid grid-cols-[2fr_1fr] max-[900px]:grid-cols-1 gap-6 h-[500px] max-[900px]:h-auto">
+            <div className="relative rounded-2xl overflow-hidden max-[900px]:aspect-[3/4]">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1758600432264-b8d2a0fd7d83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBhc2lhbiUyMG1hbiUyMHBvcnRyYWl0JTIwdGhvdWdodGZ1bHxlbnwxfHx8fDE3NzMxMTcwODJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                src="/aboutus_sunset.webp"
                 alt="Thoughtful portrait"
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
+            <div className="relative rounded-2xl overflow-hidden max-[900px]:aspect-[3/4]">
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1562255510-81104e9a3ea1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2FjaGluZyUyMGNvbnZlcnNhdGlvbiUyMGxpc3RlbmluZyUyMGNvbm5lY3Rpb258ZW58MXx8fHwxNzczMTE3MDgxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                 alt="Coaching conversation"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
-              <ImageWithFallback
-                src="https://images.unsplash.com/photo-1770486258267-e81e7bc73298?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoYW5kcyUyMGNvbnZlcnNhdGlvbiUyMGNvZmZlZSUyMHRhYmxlfGVufDF8fHx8MTc3MzExNzA4Mnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Conversation hands"
                 className="w-full h-full object-cover"
               />
             </div>
