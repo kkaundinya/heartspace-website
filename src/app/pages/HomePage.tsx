@@ -56,12 +56,11 @@ function HeroSection() {
             animationDelay: "0.25s",
           }}
         >
-          A space to{" "}
+          For anyone who wants to{" "}
           <span className="relative inline-block" style={{ color: "var(--coral)" }}>
-            hear yourself
+            relate better
             <WavyUnderline />
           </span>{" "}
-          clearly.
         </h1>
 
         <p
@@ -72,9 +71,7 @@ function HeroSection() {
             animationDelay: "0.42s",
           }}
         >
-          Heart Space creates guided conversations that help you relate better — to
-          yourself, to others, and to life. Not therapy. Not advice. Something rarer: a
-          space to actually see what's happening.
+          Heart Space creates guided conversations that help you relate better — to yourself, to others, and to life. Not therapy. Not advice. Something rarer: a space to actually see what's happening. 
         </p>
 
         <div
