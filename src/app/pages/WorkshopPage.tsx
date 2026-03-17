@@ -263,8 +263,10 @@ function CountdownTimer({ targetDate: targetDateStr }: { targetDate: string }) {
   });
 
   useEffect(() => {
-    // Use start of day IST (UTC+5:30) = 05:30 UTC
-    const targetDate = new Date(`${targetDateStr}T05:30:00Z`).getTime();
+    // Normalize: DB may return a Date object even though typed as string; extract YYYY-MM-DD
+    const dateOnly = String(targetDateStr).split("T")[0];
+    // Use 11:00 AM IST (UTC+5:30) = 05:30 UTC
+    const targetDate = new Date(`${dateOnly}T05:30:00Z`).getTime();
 
     const updateCountdown = () => {
       const now = new Date().getTime();
