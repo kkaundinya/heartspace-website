@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { sql } from "@/lib/db";
 import { verifyCashfreePayment } from "@/lib/cashfree";
+import { sendConfirmationEmail } from "@/lib/email";
 import { AddToCalendar } from "@/components/AddToCalendar";
 
 export const metadata: Metadata = {
@@ -84,8 +85,16 @@ export default async function ThankYouPage({ searchParams }: PageProps) {
     try {
       const cashfreeStatus = await verifyCashfreePayment(orderId);
       if (cashfreeStatus.order_status === "PAID") {
-        // Update DB and show success (webhook may be delayed)
-        await sql`UPDATE registrations SET payment_status = 'success', updated_at = NOW() WHERE cashfree_order_id = ${orderId}`;
+        // Update DB and send email (webhook may be delayed or already fired)
+        const updated = await sql`
+          UPDATE registrations SET payment_status = 'success', updated_at = NOW()
+          WHERE cashfree_order_id = ${orderId} AND payment_status != 'success'
+          RETURNING id
+        `;
+        // Only send email if this is the first time we're marking success
+        if (updated.length > 0) {
+          await sendConfirmationEmail({ to: registration.email, name: registration.full_name, workshop }).catch(() => {});
+        }
         return <SuccessState firstName={firstName} email={registration.email} workshop={workshop} />;
       }
       if (cashfreeStatus.order_status === "FAILED" || cashfreeStatus.order_status === "ACTIVE") {
