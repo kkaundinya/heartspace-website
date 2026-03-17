@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { sql } from "@/lib/db";
+import { verifyCashfreePayment } from "@/lib/cashfree";
 import { AddToCalendar } from "@/components/AddToCalendar";
 
 export const metadata: Metadata = {
@@ -78,7 +79,24 @@ export default async function ThankYouPage({ searchParams }: PageProps) {
     return <FailedState />;
   }
 
-  // pending / processing
+  // For pending status, check actual payment status from Cashfree
+  if (payment_status === "pending") {
+    try {
+      const cashfreeStatus = await verifyCashfreePayment(orderId);
+      if (cashfreeStatus.order_status === "PAID") {
+        // Update DB and show success (webhook may be delayed)
+        await sql`UPDATE registrations SET payment_status = 'success', updated_at = NOW() WHERE cashfree_order_id = ${orderId}`;
+        return <SuccessState firstName={firstName} email={registration.email} workshop={workshop} />;
+      }
+      if (cashfreeStatus.order_status === "FAILED" || cashfreeStatus.order_status === "ACTIVE") {
+        // ACTIVE = no payment attempted (user clicked back)
+        return <FailedState />;
+      }
+    } catch {
+      // Cashfree verification failed — show processing as fallback
+    }
+  }
+
   return <ProcessingState orderId={orderId} />;
 }
 
@@ -213,10 +231,10 @@ function FailedState() {
           Payment unsuccessful
         </h1>
         <p className="text-base mb-8" style={{ color: "#6B6B8A" }}>
-          Your payment could not be processed. You have not been charged. Please try again.
+          Your payment was not completed. You have not been charged. Please try again.
         </p>
         <a
-          href="/workshop"
+          href="/workshop#book"
           className="inline-block px-8 py-3 rounded-full font-semibold text-white text-sm"
           style={{ background: "#7C5CBF" }}
         >
