@@ -27,9 +27,8 @@ export function RegistrationModal({ workshop, onClose }: RegistrationModalProps)
   const [errorMessage, setErrorMessage] = useState("");
   const [sdkLoaded, setSdkLoaded] = useState(false);
 
-  const priceInPaise = workshop.discounted_price ?? workshop.regular_price;
-  const priceInRupees = Math.round(priceInPaise / 100);
-  const regularPriceInRupees = Math.round(workshop.regular_price / 100);
+  const priceInRupees = workshop.discounted_price ?? workshop.regular_price;
+  const regularPriceInRupees = workshop.regular_price;
   const hasDiscount =
     workshop.discounted_price !== null && workshop.discounted_price < workshop.regular_price;
 

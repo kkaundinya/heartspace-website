@@ -39,16 +39,14 @@ export default async function Workshop() {
     date_1: "2026-03-28",
     date_2: "2026-03-29",
     session_time: "11:00 AM – 12:30 PM IST",
-    regular_price: 49900,
-    discounted_price: 49900,
+    regular_price: 999,
+    discounted_price: 499,
     is_active: true,
     zoom_link: null,
   };
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://heart-spaces.com";
-  const priceInRupees = Math.round(
-    (workshopData.discounted_price ?? workshopData.regular_price) / 100
-  );
+  const priceInRupees = workshopData.discounted_price ?? workshopData.regular_price;
 
   const eventJsonLd = {
     "@context": "https://schema.org",

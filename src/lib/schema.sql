@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS workshops (
   date_1           DATE NOT NULL,
   date_2           DATE NOT NULL,
   session_time     TEXT NOT NULL,           -- e.g. "11:00 AM - 12:30 PM IST"
-  regular_price    INTEGER NOT NULL,         -- stored in paise (₹499 = 49900)
+  regular_price    INTEGER NOT NULL,         -- stored in rupees (₹999 = 999)
   discounted_price INTEGER,                  -- NULL means no discount active
   is_active        BOOLEAN NOT NULL DEFAULT true,
   zoom_link        TEXT,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS registrations (
                        CHECK (payment_status IN ('pending','processing','success','failed','refunded')),
   cashfree_order_id    TEXT UNIQUE,
   cashfree_payment_id  TEXT,
-  amount_paid          INTEGER,              -- in paise
+  amount_paid          INTEGER,              -- in rupees
   created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -40,7 +40,7 @@ CREATE INDEX IF NOT EXISTS idx_registrations_workshop
   ON registrations(workshop_id);
 
 -- Seed initial Workshop 1 data
--- Prices stored in paise: ₹499 = 49900
+-- Prices stored in rupees: ₹999 = 999
 INSERT INTO workshops (name, description, date_1, date_2, session_time, regular_price, discounted_price, is_active)
 VALUES (
   'Workshop 1: Surfacing Difficult Conversations',
@@ -48,8 +48,8 @@ VALUES (
   '2026-03-28',
   '2026-03-29',
   '11:00 AM – 12:30 PM IST',
-  49900,
-  49900,
+  999,
+  499,
   true
 )
 ON CONFLICT DO NOTHING;

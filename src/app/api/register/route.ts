@@ -33,10 +33,9 @@ export async function POST(request: NextRequest) {
 
     const workshop = workshops[0];
     // Amount in paise — use discounted price if set, else regular
-    const amountInPaise: number =
+    // Amount in rupees — use discounted price if set, else regular
+    const amountInRupees: number =
       workshop.discounted_price ?? workshop.regular_price;
-    // Cashfree expects rupees with 2 decimals
-    const amountInRupees = amountInPaise / 100;
 
     // Generate unique order ID (max 50 chars for Cashfree)
     const orderId = `hs_${Date.now()}_${Math.random()
@@ -49,7 +48,7 @@ export async function POST(request: NextRequest) {
         (workshop_id, full_name, email, phone, payment_status, cashfree_order_id, amount_paid)
       VALUES
         (${validated.workshop_id}, ${validated.full_name}, ${validated.email},
-         ${validated.phone}, 'pending', ${orderId}, ${amountInPaise})
+         ${validated.phone}, 'pending', ${orderId}, ${amountInRupees})
       RETURNING id
     `;
 

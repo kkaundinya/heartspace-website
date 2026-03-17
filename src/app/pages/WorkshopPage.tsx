@@ -40,10 +40,8 @@ function formatShortDate(dateStr: string): string {
 export function WorkshopPage({ workshop }: { workshop: WorkshopData }) {
   const [showModal, setShowModal] = useState(false);
 
-  const priceInRupees = Math.round(
-    (workshop.discounted_price ?? workshop.regular_price) / 100
-  );
-  const regularPriceInRupees = Math.round(workshop.regular_price / 100);
+  const priceInRupees = workshop.discounted_price ?? workshop.regular_price;
+  const regularPriceInRupees = workshop.regular_price;
   const hasDiscount =
     workshop.discounted_price !== null &&
     workshop.discounted_price < workshop.regular_price;
