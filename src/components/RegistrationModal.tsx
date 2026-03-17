@@ -74,7 +74,7 @@ export function RegistrationModal({ workshop, onClose }: RegistrationModalProps)
       }
 
       const cashfree = window.Cashfree({
-        mode: process.env.NEXT_PUBLIC_CASHFREE_ENV === "PROD" ? "production" : "sandbox",
+        mode: (process.env.NEXT_PUBLIC_CASHFREE_ENV === "PROD" || process.env.NEXT_PUBLIC_CASHFREE_ENV === "production") ? "production" : "sandbox",
       });
 
       await cashfree.checkout({
