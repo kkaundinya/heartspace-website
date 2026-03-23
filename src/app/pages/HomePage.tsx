@@ -105,10 +105,10 @@ function HeroSection() {
             <div
               key={i}
               className={`flex items-center justify-center gap-2 text-[13px] font-semibold ${i < 3 && i !== 1
-                ? "border-r max-[900px]:border-r-0"
-                : i === 1
-                  ? "border-r max-[900px]:border-r"
-                  : ""
+                  ? "border-r max-[900px]:border-r-0"
+                  : i === 1
+                    ? "border-r max-[900px]:border-r"
+                    : ""
                 }`}
               style={{ borderColor: "var(--border)", color: "var(--ink)" }}
             >
@@ -360,17 +360,6 @@ function ShashiTeaserSection() {
           <ScrollReveal delay={160}>
             <div>
               <Pill variant="peach">The person behind Heart Space</Pill>
-
-              <div
-                className="mt-6 mb-6 inline-block px-4 py-2.5 rounded-xl border text-sm font-bold"
-                style={{
-                  background: "#FFF0E8",
-                  borderColor: "#FFD4B8",
-                  color: "var(--ink)",
-                }}
-              >
-                📰 Coach · Facilitator · Guide
-              </div>
 
               <h2
                 className="mb-6 italic"
@@ -766,9 +755,6 @@ function FinalCTASection() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Button variant="primary" href="/workshop">
               Join Workshop
-            </Button>
-            <Button variant="outline" href="/workshop">
-              Learn More
             </Button>
           </div>
         </ScrollReveal>
