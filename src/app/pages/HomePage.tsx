@@ -73,7 +73,7 @@ function HeroSection() {
             animationDelay: "0.42s",
           }}
         >
-          Heart Space creates guided conversations that help you relate better — to yourself, to others, and to life. Not therapy. Not advice. Something rarer: a space to actually see what's happening. 
+          Heart Space creates guided conversations that help you relate better — to yourself, to others, and to life. Not therapy. Not advice. Something rarer: a space to actually see what's happening.
         </p>
 
         <div
@@ -104,13 +104,12 @@ function HeroSection() {
           ].map((item, i) => (
             <div
               key={i}
-              className={`flex items-center justify-center gap-2 text-[13px] font-semibold ${
-                i < 3 && i !== 1
-                  ? "border-r max-[900px]:border-r-0"
-                  : i === 1
+              className={`flex items-center justify-center gap-2 text-[13px] font-semibold ${i < 3 && i !== 1
+                ? "border-r max-[900px]:border-r-0"
+                : i === 1
                   ? "border-r max-[900px]:border-r"
                   : ""
-              }`}
+                }`}
               style={{ borderColor: "var(--border)", color: "var(--ink)" }}
             >
               <span className="text-base">{item.emoji}</span>
@@ -352,7 +351,7 @@ function ShashiTeaserSection() {
                 className="absolute bottom-0 left-0 right-0 py-3 px-5 text-center text-white text-xs font-bold tracking-wide"
                 style={{ background: "#FF7F5C" }}
               >
-                WAR CORRESPONDENT → COACH
+                20+ Years Field Experience · Relationship Coach
               </div>
             </div>
           </ScrollReveal>
@@ -370,7 +369,7 @@ function ShashiTeaserSection() {
                   color: "var(--ink)",
                 }}
               >
-                📰 Former investigative journalist & war correspondent
+                📰 Coach · Facilitator · Guide
               </div>
 
               <h2
@@ -391,7 +390,7 @@ function ShashiTeaserSection() {
                 those lessons.
               </p>
 
-              <Button variant="outline"href="/about">
+              <Button variant="outline" href="/about">
                 Read Shashi's Story
               </Button>
             </div>
