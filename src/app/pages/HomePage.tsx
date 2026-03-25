@@ -105,10 +105,10 @@ function HeroSection() {
             <div
               key={i}
               className={`flex items-center justify-center gap-2 text-[13px] font-semibold ${i < 3 && i !== 1
-                  ? "border-r max-[900px]:border-r-0"
-                  : i === 1
-                    ? "border-r max-[900px]:border-r"
-                    : ""
+                ? "border-r max-[900px]:border-r-0"
+                : i === 1
+                  ? "border-r max-[900px]:border-r"
+                  : ""
                 }`}
               style={{ borderColor: "var(--border)", color: "var(--ink)" }}
             >
@@ -362,7 +362,7 @@ function ShashiTeaserSection() {
               <Pill variant="peach">The person behind Heart Space</Pill>
 
               <h2
-                className="mb-6 italic"
+                className="mt-6 mb-6 italic"
                 style={{
                   fontSize: "clamp(22px, 2.8vw, 34px)",
                   lineHeight: "1.4",
@@ -452,7 +452,7 @@ function WorkshopCardSection() {
               {/* Right - Details */}
               <div className="flex flex-col gap-3">
                 {[
-                  { emoji: "📅", label: "When", value: "March 28 & 29, 2026" },
+                  { emoji: "📅", label: "When", value: "April 11 & 12, 2026" },
                   { emoji: "⏱️", label: "Duration", value: "90 minutes × 2 sessions" },
                   { emoji: "💻", label: "Format", value: "Live on Zoom" },
                   {

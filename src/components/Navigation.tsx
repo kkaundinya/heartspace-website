@@ -35,11 +35,8 @@ export function Navigation() {
     >
       <div className="h-full px-16 max-[900px]:px-5 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <img src="/heart-space-logo-only.svg" alt="Heart Space" width={36} height={36} />
-          <span className="font-bold text-lg" style={{ color: "var(--ink)" }}>
-            Heart Space
-          </span>
+        <Link href="/" className="flex items-center">
+          <img src="/heart-space-final-logo.svg" alt="Heart Space" height={36} className="h-9 w-auto" />
         </Link>
 
         {/* Center Navigation - Hidden on mobile */}
