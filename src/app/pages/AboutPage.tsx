@@ -139,7 +139,7 @@ function PullQuote1Section() {
             style={{ fontSize: "clamp(24px, 3.5vw, 44px)" }}
           >
             "Relationship-building was never a soft skill for me. It was a matter of
-            survival."
+            Thriving."
           </blockquote>
 
           <p className="text-base" style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -166,14 +166,9 @@ function Chapter01Section() {
           {/* Left */}
           <ScrollReveal>
             <div className="relative">
-              <p
-                className="text-[11px] font-bold uppercase tracking-wide mb-4"
-                style={{ color: "var(--ink-soft)" }}
-              >
-                Chapter 01
-              </p>
+
               <h2 style={{ fontSize: "clamp(30px, 4vw, 50px)" }}>
-                A different kind of classroom.
+                Learning to relate when it really matters
               </h2>
 
               {/* Decorative 01 */}
@@ -304,14 +299,9 @@ function Chapter02Section() {
           {/* Right */}
           <ScrollReveal delay={160}>
             <div className="relative">
-              <p
-                className="text-[11px] font-bold uppercase tracking-wide mb-4"
-                style={{ color: "var(--ink-soft)" }}
-              >
-                Chapter 02
-              </p>
+
               <h2 style={{ fontSize: "clamp(30px, 4vw, 50px)" }}>
-                Organisations are just relationships at scale.
+                What relationships look like at scale
               </h2>
 
               {/* Decorative 02 */}
@@ -344,12 +334,7 @@ function Chapter03Section() {
           {/* Left */}
           <ScrollReveal>
             <div className="relative">
-              <p
-                className="text-[11px] font-bold uppercase tracking-wide mb-4"
-                style={{ color: "var(--ink-soft)" }}
-              >
-                Chapter 03
-              </p>
+
               <h2 style={{ fontSize: "clamp(30px, 4vw, 50px)" }}>
                 Why Heart Space. The honest version.
               </h2>
@@ -369,18 +354,12 @@ function Chapter03Section() {
             <div>
               <p className="text-base mb-6" style={{ color: "var(--ink-soft)" }}>
                 None of what Shashi learned over two decades made his own relationships
-                easy. He still avoided conversations. Still repeated patterns. Still found
-                himself responding to an image of the person rather than the person.
+                easy. He avoided conversations, repeated patterns, and found himself responding to an image of the person rather than the person.
               </p>
 
-              <p className="text-base mb-6" style={{ color: "var(--ink-soft)" }}>
-                Heart Space was built because he needed it. Not as a product — as a place.
-              </p>
 
               <p className="text-base" style={{ color: "var(--ink-soft)" }}>
-                A space where the seeing could actually happen. Where the conversation that
-                kept not-happening could finally begin. Where clarity, honesty, and love
-                could show up together — not as ideals, but as practice.
+                Heart Space is a place crafted with experiences learnt from his life journey. It is a space where the conversation that didn’t ever start could finally begin. Where clarity, honesty, and love could show up together — not as ideals, but as practice.
               </p>
             </div>
           </ScrollReveal>
@@ -434,7 +413,7 @@ function PullQuote2Section() {
             }}
           >
             "Building great relationships has very little to do with what's outside us. It
-            begins with how we relate to ourselves."
+            begins with how we see ourselves."
           </blockquote>
 
           <p className="text-base" style={{ color: "var(--ink-soft)" }}>
@@ -482,8 +461,8 @@ function PrinciplesSection() {
             {
               emoji: "🔥",
               bg: "#FFF0B8",
-              title: "Built on failure, not theory",
-              text: "Heart Space wasn't designed in a workshop or borrowed from a book. It emerged from Shashi's own failures — in the field, in boardrooms, in his own life.",
+              title: "Built on lived experiences",
+              text: "Heart Space wasn't designed in a workshop or borrowed from a book. It emerged from Shashi's own lived experiences — in the field, in boardrooms, in his own life.",
             },
             {
               emoji: "💫",
@@ -539,8 +518,7 @@ function NotTherapySection() {
               className="leading-relaxed"
               style={{ color: "rgba(255,255,255,0.7)" }}
             >
-              Heart Space is not therapy, counselling, or clinical mental health support.
-              Shashi is not a licensed therapist. If you are in crisis or need clinical
+              Heart Space is not therapy, counselling, or clinical mental health support. If you are in crisis or need clinical
               support, please seek that through a qualified professional. Heart Space is for
               people who are navigating life's relational complexity and want a guided space
               to see more clearly.
@@ -563,16 +541,14 @@ function CTASection() {
       />
 
       <div className="relative z-10 max-w-[620px] mx-auto text-center">
-        <ScrollReveal>
-          <Pill variant="peach">This is where the work begins.</Pill>
-        </ScrollReveal>
+
 
         <ScrollReveal delay={160}>
           <h2
             className="mt-8 mb-6"
             style={{ fontSize: "clamp(36px, 5.5vw, 66px)" }}
           >
-            This is where the work begins.
+            This is where the real conversation finally begins.
           </h2>
         </ScrollReveal>
 

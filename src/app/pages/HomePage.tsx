@@ -369,7 +369,7 @@ function ShashiTeaserSection() {
                 }}
               >
                 "Relationship-building was never a soft skill for me. It was a matter of{" "}
-                <span style={{ color: "var(--coral)" }}>survival.</span>"
+                <span style={{ color: "var(--coral)" }}>thriving.</span>"
               </h2>
 
               <p className="text-base mb-8" style={{ color: "var(--ink-soft)" }}>
