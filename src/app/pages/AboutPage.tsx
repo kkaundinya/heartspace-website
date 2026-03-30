@@ -139,7 +139,7 @@ function PullQuote1Section() {
             style={{ fontSize: "clamp(24px, 3.5vw, 44px)" }}
           >
             "Relationship-building was never a soft skill for me. It was a matter of
-            Thriving."
+            thriving."
           </blockquote>
 
           <p className="text-base" style={{ color: "rgba(255,255,255,0.5)" }}>
