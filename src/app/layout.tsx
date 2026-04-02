@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { MetaPixel } from "@/components/analytics/MetaPixel";
 import "@/styles/index.css";
 
 export const metadata: Metadata = {
@@ -46,6 +47,7 @@ export default function RootLayout({
       </head>
       <body>
         <GoogleAnalytics />
+        <MetaPixel />
         <div className="min-h-screen flex flex-col">
           <Navigation />
           <main className="flex-1 pt-16">{children}</main>

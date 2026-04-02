@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Script from "next/script";
+import { trackAddPaymentInfo } from "@/lib/analytics";
 
 interface WorkshopData {
   id: number;
@@ -82,6 +83,7 @@ export function RegistrationModal({ workshop, onClose }: RegistrationModalProps)
         mode: (process.env.NEXT_PUBLIC_CASHFREE_ENV === "PROD" || process.env.NEXT_PUBLIC_CASHFREE_ENV === "production") ? "production" : "sandbox",
       });
 
+      trackAddPaymentInfo();
       await cashfree.checkout({
         paymentSessionId: payment_session_id,
         redirectTarget: "_self",

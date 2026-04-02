@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FloatingBlob } from "@/components/ui/floating-blob";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { RegistrationModal } from "@/components/RegistrationModal";
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent, trackWorkshopView, trackMetaViewContent, trackMetaInitiateCheckout } from "@/lib/analytics";
 
 export interface WorkshopData {
   id: number;
@@ -48,10 +48,13 @@ export function WorkshopPage({ workshop }: { workshop: WorkshopData }) {
 
   const openBooking = () => {
     trackEvent("begin_checkout", { currency: "INR", value: priceInRupees });
+    trackMetaInitiateCheckout(priceInRupees);
     setShowModal(true);
   };
 
   useEffect(() => {
+    trackWorkshopView(workshop.name);
+    trackMetaViewContent();
     // Open modal when Navigation dispatches the event (user is already on this page)
     const handler = () => openBooking();
     window.addEventListener("open-booking-modal", handler);

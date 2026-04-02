@@ -3,6 +3,7 @@ import { sql } from "@/lib/db";
 import { verifyCashfreePayment } from "@/lib/cashfree";
 import { sendConfirmationEmail } from "@/lib/email";
 import { AddToCalendar } from "@/components/AddToCalendar";
+import { TrackPurchase, TrackPaymentFailed } from "@/components/analytics/TrackPageEvent";
 
 export const metadata: Metadata = {
   title: "Booking Confirmed",
@@ -22,13 +23,14 @@ export default async function ThankYouPage({ searchParams }: PageProps) {
   }
 
   let registration = null;
-  let workshop = null;
+  let workshop: WorkshopDetails | null = null;
 
   try {
     const rows = await sql`
       SELECT
         r.id, r.full_name, r.email, r.payment_status,
-        w.name AS workshop_name, w.date_1, w.date_2, w.session_time, w.zoom_link
+        w.name AS workshop_name, w.date_1, w.date_2, w.session_time, w.zoom_link,
+        w.regular_price, w.discounted_price
       FROM registrations r
       JOIN workshops w ON r.workshop_id = w.id
       WHERE r.cashfree_order_id = ${orderId}
@@ -45,6 +47,8 @@ export default async function ThankYouPage({ searchParams }: PageProps) {
         date_2: string;
         session_time: string;
         zoom_link: string | null;
+        regular_price: number;
+        discounted_price: number | null;
       };
       registration = row;
       workshop = {
@@ -53,6 +57,7 @@ export default async function ThankYouPage({ searchParams }: PageProps) {
         date_2: row.date_2,
         session_time: row.session_time,
         zoom_link: row.zoom_link,
+        price: row.discounted_price ?? row.regular_price,
       };
     }
   } catch (e) {
@@ -68,16 +73,20 @@ export default async function ThankYouPage({ searchParams }: PageProps) {
 
   if (payment_status === "success") {
     return (
-      <SuccessState
-        firstName={firstName}
-        email={registration.email}
-        workshop={workshop}
-      />
+      <>
+        <TrackPurchase orderId={orderId} amount={workshop.price} />
+        <SuccessState firstName={firstName} email={registration.email} workshop={workshop} />
+      </>
     );
   }
 
   if (payment_status === "failed") {
-    return <FailedState />;
+    return (
+      <>
+        <TrackPaymentFailed orderId={orderId} />
+        <FailedState />
+      </>
+    );
   }
 
   // For pending status, check actual payment status from Cashfree
@@ -125,6 +134,7 @@ interface WorkshopDetails {
   date_2: string;
   session_time: string;
   zoom_link: string | null;
+  price: number;
 }
 
 function SuccessState({

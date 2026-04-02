@@ -26,3 +26,27 @@ export function trackPurchase(transactionId: string, priceInRupees: number) {
 export function trackPaymentFailed(orderId: string) {
   trackEvent("payment_failed", { event_category: "ecommerce", event_label: orderId });
 }
+
+// --- Meta Pixel helpers ---
+
+function trackMetaEvent(event: string, params?: Record<string, unknown>) {
+  if (typeof window === "undefined" || typeof window.fbq !== "function") return;
+  window.fbq("track", event, params ?? {});
+}
+
+export function trackMetaViewContent() {
+  trackMetaEvent("ViewContent", { content_name: "Heartspace Workshop", content_type: "product" });
+}
+
+export function trackMetaInitiateCheckout(value: number) {
+  trackMetaEvent("InitiateCheckout", { value, currency: "INR", num_items: 1 });
+}
+
+export function trackMetaPurchase(value: number) {
+  trackMetaEvent("Purchase", { value, currency: "INR" });
+}
+
+export function trackMetaPaymentFailed() {
+  if (typeof window === "undefined" || typeof window.fbq !== "function") return;
+  window.fbq("trackCustom", "PaymentFailed");
+}
