@@ -38,7 +38,7 @@ export default async function Workshop() {
     name: "Workshop 1: Surfacing Difficult Conversations",
     date_1: "2026-03-28",
     date_2: "2026-03-29",
-    session_time: "11:00 AM – 12:30 PM IST",
+    session_time: "11:00 AM – 12:00 PM IST",
     regular_price: 999,
     discounted_price: 499,
     is_active: true,

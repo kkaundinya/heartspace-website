@@ -3,6 +3,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { MetaPixel } from "@/components/analytics/MetaPixel";
+import { MicrosoftClarity } from "@/components/analytics/MicrosoftClarity";
 import "@/styles/index.css";
 
 export const metadata: Metadata = {
@@ -48,6 +49,7 @@ export default function RootLayout({
       <body>
         <GoogleAnalytics />
         <MetaPixel />
+        <MicrosoftClarity />
         <div className="min-h-screen flex flex-col">
           <Navigation />
           <main className="flex-1 pt-16">{children}</main>
