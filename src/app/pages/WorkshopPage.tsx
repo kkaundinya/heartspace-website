@@ -210,7 +210,7 @@ function HeroSection({
                 {[
                   { emoji: "📅", label: "Dates", value: dateRange },
                   { emoji: "🕖", label: "Time", value: `${workshop.session_time} both days` },
-                  { emoji: "⏱️", label: "Format", value: "90 minutes × 2 live sessions" },
+                  { emoji: "⏱️", label: "Format", value: "60 minutes × 2 live sessions" },
                   { emoji: "💻", label: "Platform", value: "Live on Zoom" },
                   { emoji: "🌍", label: "Open to", value: "Anyone, anywhere" },
                 ].map((item, i) => (
@@ -501,7 +501,7 @@ function WhatsIncludedSection({
             {
               emoji: "🎙️",
               title: "2 Live Guided Sessions",
-              text: "90 minutes each, live on Zoom with Shashi. Small group, real conversation, guided exercises.",
+              text: "60 minutes each, live on Zoom with Shashi. Small group, real conversation, guided exercises.",
               tag: "Live · Interactive",
               tagBg: "#DDD4F8",
             },
@@ -611,7 +611,7 @@ function ExperienceFlowSection({ workshop }: { workshop: WorkshopData }) {
                 bg: "#DDD4F8",
                 label: sessionLabel,
                 title: "Two live sessions",
-                text: `90 minutes each with Shashi. Guided exercises. Real conversation. Small group. ${sessionTime}.`,
+                text: `60 minutes each with Shashi. Guided exercises. Real conversation. Small group. ${sessionTime}.`,
               },
               {
                 emoji: "📖",
@@ -694,13 +694,13 @@ function TwoSessionsSection({ workshop }: { workshop: WorkshopData }) {
                   className="px-3 py-1 rounded-full text-xs font-bold"
                   style={{ background: "#DDD4F8", color: "var(--purple-dark)" }}
                 >
-                  90 mins · Live
+                  60 mins · Live
                 </span>
                 <span
                   className="px-3 py-1 rounded-full text-xs font-bold"
                   style={{ background: "#DDD4F8", color: "var(--purple-dark)" }}
                 >
-{sessionTime}
+                  {sessionTime}
                 </span>
               </div>
 
@@ -763,13 +763,13 @@ function TwoSessionsSection({ workshop }: { workshop: WorkshopData }) {
                   className="px-3 py-1 rounded-full text-xs font-bold"
                   style={{ background: "#FFD4B8", color: "#8B4513" }}
                 >
-                  90 mins · Live
+                  60 mins · Live
                 </span>
                 <span
                   className="px-3 py-1 rounded-full text-xs font-bold"
                   style={{ background: "#FFD4B8", color: "#8B4513" }}
                 >
-{sessionTime}
+                  {sessionTime}
                 </span>
               </div>
 
@@ -894,7 +894,7 @@ function PricingSection({
               <div className="space-y-2 mb-8">
                 {[
                   "RELATE Workbook (pre-session)",
-                  "2 live guided sessions with Shashi (90 min each)",
+                  "2 live guided sessions with Shashi (60 min each)",
                   "RELATE Manual (post-session)",
                   "Full session recording · Lifetime access",
                   "Small group experience — not a webinar",
@@ -1058,9 +1058,8 @@ function FAQSection() {
                 >
                   <span className="font-bold pr-4">{faq.question}</span>
                   <span
-                    className={`text-2xl transition-transform flex-shrink-0 ${
-                      openIndex === i ? "rotate-45" : ""
-                    }`}
+                    className={`text-2xl transition-transform flex-shrink-0 ${openIndex === i ? "rotate-45" : ""
+                      }`}
                     style={{ color: "var(--purple)" }}
                   >
                     +

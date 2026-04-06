@@ -136,7 +136,7 @@ export async function sendConfirmationEmail({
       <h3 style="color:#1A1A2E;font-size:16px;font-weight:700;margin:0 0 16px;">What to expect</h3>
       <ul style="color:#1A1A2E;font-size:14px;line-height:1.8;margin:0 0 24px;padding-left:20px;">
         <li>You'll receive the <strong>RELATE Workbook</strong> 48 hours before Session 1</li>
-        <li>Both sessions are <strong>90 minutes each</strong>, live on Zoom</li>
+        <li>Both sessions are <strong>60 minutes each</strong>, live on Zoom</li>
         <li>Small group — real conversation, not a webinar</li>
         <li>The <strong>RELATE Manual</strong> and <strong>full recording</strong> will be sent after Session 2</li>
       </ul>

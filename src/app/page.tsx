@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { HomePage } from "@/app/pages/HomePage";
+import { sql } from "@/lib/db";
+import { type WorkshopData } from "@/app/pages/WorkshopPage";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Heart Space — Guided Conversations for Better Relationships",
@@ -13,6 +17,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  return <HomePage />;
+export default async function Home() {
+  let workshop: WorkshopData | null = null;
+  try {
+    const rows = await sql`
+      SELECT id, name, date_1, date_2, session_time, regular_price, discounted_price, is_active, zoom_link
+      FROM workshops
+      WHERE is_active = true
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    if (rows.length > 0) workshop = rows[0] as WorkshopData;
+  } catch (e) {
+    console.warn("DB not available, using fallback workshop data:", e);
+  }
+
+  return <HomePage workshop={workshop} />;
 }

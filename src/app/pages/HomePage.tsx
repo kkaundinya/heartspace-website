@@ -4,15 +4,16 @@ import { Pill } from "@/components/ui/pill";
 import { Button } from "@/components/ui/button";
 import { FloatingBlob } from "@/components/ui/floating-blob";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { type WorkshopData } from "@/app/pages/WorkshopPage";
 
-export function HomePage() {
+export function HomePage({ workshop }: { workshop: WorkshopData | null }) {
   return (
     <div>
       <HeroSection />
       <WhatIsHeartSpaceSection />
       <RelationshipsSection />
       <ShashiTeaserSection />
-      <WorkshopCardSection />
+      <WorkshopCardSection workshop={workshop} />
       <HowItWorksSection />
       <TestimonialsSection />
       <IsThisForYouSection />
@@ -390,7 +391,22 @@ function ShashiTeaserSection() {
   );
 }
 
-function WorkshopCardSection() {
+function formatWorkshopDates(date1: string, date2: string): string {
+  const d1 = new Date(date1 + "T00:00:00");
+  const d2 = new Date(date2 + "T00:00:00");
+  const month = d1.toLocaleString("en-IN", { month: "long" });
+  return `${month} ${d1.getDate()} & ${d2.getDate()}, ${d1.getFullYear()}`;
+}
+
+function WorkshopCardSection({ workshop }: { workshop: WorkshopData | null }) {
+  const title = workshop?.name ?? "Workshop 1: Surfacing Difficult Conversations";
+  const dates =
+    workshop ? formatWorkshopDates(workshop.date_1, workshop.date_2) : "Coming soon";
+  const sessionTime = workshop?.session_time ?? "60 minutes × 2 sessions";
+  const price = workshop
+    ? `₹${workshop.discounted_price ?? workshop.regular_price} · All-in`
+    : "₹499 · All-in";
+
   return (
     <section className="px-16 pb-[100px] max-[900px]:px-6">
       <div className="max-w-[1100px] mx-auto">
@@ -433,9 +449,7 @@ function WorkshopCardSection() {
                 >
                   ✦ Now open — first workshop
                 </p>
-                <h2 className="text-white mb-6">
-                  Workshop 1: Surfacing Difficult Conversations
-                </h2>
+                <h2 className="text-white mb-6">{title}</h2>
                 <p
                   className="text-base mb-8 max-w-[520px]"
                   style={{ color: "rgba(255,255,255,0.7)" }}
@@ -452,15 +466,11 @@ function WorkshopCardSection() {
               {/* Right - Details */}
               <div className="flex flex-col gap-3">
                 {[
-                  { emoji: "📅", label: "When", value: "April 11 & 12, 2026" },
-                  { emoji: "⏱️", label: "Duration", value: "90 minutes × 2 sessions" },
+                  { emoji: "📅", label: "When", value: dates },
+                  { emoji: "⏱️", label: "Duration", value: sessionTime },
                   { emoji: "💻", label: "Format", value: "Live on Zoom" },
-                  {
-                    emoji: "📦",
-                    label: "Includes",
-                    value: "Workbook + Manual + Recording",
-                  },
-                  { emoji: "💰", label: "Investment", value: "₹499 · All-in" },
+                  { emoji: "📦", label: "Includes", value: "Workbook + Manual + Recording" },
+                  { emoji: "💰", label: "Investment", value: price },
                 ].map((item, i) => (
                   <div
                     key={i}

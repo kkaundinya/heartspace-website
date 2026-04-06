@@ -102,7 +102,7 @@ export default async function ThankYouPage({ searchParams }: PageProps) {
         `;
         // Only send email if this is the first time we're marking success
         if (updated.length > 0) {
-          await sendConfirmationEmail({ to: registration.email, name: registration.full_name, workshop }).catch(() => {});
+          await sendConfirmationEmail({ to: registration.email, name: registration.full_name, workshop }).catch(() => { });
         }
         return <SuccessState firstName={firstName} email={registration.email} workshop={workshop} />;
       }
@@ -231,7 +231,7 @@ function SuccessState({
             <h3 className="font-bold text-sm mb-3" style={{ color: "#1A1A2E" }}>WHAT'S NEXT</h3>
             <ul className="text-sm space-y-2" style={{ color: "#6B6B8A" }}>
               <li>• You'll receive the RELATE Workbook 48 hours before Session 1</li>
-              <li>• Both sessions are 90 minutes each, live on Zoom</li>
+              <li>• Both sessions are 60 minutes each, live on Zoom</li>
               <li>• The RELATE Manual and full recording will be sent after Session 2</li>
             </ul>
           </div>
