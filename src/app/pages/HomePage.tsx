@@ -391,11 +391,11 @@ function ShashiTeaserSection() {
   );
 }
 
-function formatWorkshopDates(date1: string, date2: string): string {
-  const d1 = new Date(date1 + "T00:00:00");
-  const d2 = new Date(date2 + "T00:00:00");
-  const month = d1.toLocaleString("en-IN", { month: "long" });
-  return `${month} ${d1.getDate()} & ${d2.getDate()}, ${d1.getFullYear()}`;
+function formatWorkshopDates(date1: string | Date, date2: string | Date): string {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  const month = d1.toLocaleString("en-US", { month: "long", timeZone: "UTC" });
+  return `${month} ${d1.getUTCDate()} & ${d2.getUTCDate()}, ${d1.getUTCFullYear()}`;
 }
 
 function WorkshopCardSection({ workshop }: { workshop: WorkshopData | null }) {
