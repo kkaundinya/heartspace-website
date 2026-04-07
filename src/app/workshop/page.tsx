@@ -7,11 +7,11 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Workshop 1: Surfacing Difficult Conversations",
   description:
-    "Two live sessions with Shashi. A workbook before. A manual after. Join Workshop 1 for ₹499 — April 11 & 12, 2026.",
+    "Two live sessions with Shashi. A workbook before. A manual after. Join Workshop 1 for ₹499 — April 25 & 26, 2026.",
   openGraph: {
     title: "Workshop 1: Surfacing Difficult Conversations | Heart Space",
     description:
-      "Two live Zoom sessions with Shashi Velath. April 11 & 12, 2026. ₹499 all-inclusive.",
+      "Two live Zoom sessions with Shashi Velath. April 25 & 26, 2026. ₹499 all-inclusive.",
     images: ["/shashi-velath.jpg"],
   },
 };

@@ -36,6 +36,12 @@ function trackMetaEvent(event: string, params?: Record<string, unknown>) {
 
 export function trackMetaViewContent() {
   trackMetaEvent("ViewContent", { content_name: "Heartspace Workshop", content_type: "product" });
+  // Custom event for retargeting: workshop visitors who haven't checked out.
+  // In Meta Ads Manager, create a Custom Audience using "WorkshopPageView"
+  // and exclude anyone who triggered "InitiateCheckout" or "Purchase".
+  if (typeof window !== "undefined" && typeof window.fbq === "function") {
+    window.fbq("trackCustom", "WorkshopPageView");
+  }
 }
 
 export function trackMetaInitiateCheckout(value: number) {

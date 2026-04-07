@@ -73,7 +73,7 @@ export function WorkshopPage({ workshop }: { workshop: WorkshopData }) {
   const dateRange = `${date1Short} & ${date2Short}`;
 
   return (
-    <div>
+    <div className="max-[900px]:pb-20">
       {showModal && (
         <RegistrationModal
           workshop={{
@@ -85,6 +85,37 @@ export function WorkshopPage({ workshop }: { workshop: WorkshopData }) {
           onClose={() => setShowModal(false)}
         />
       )}
+
+      {/* Sticky mobile CTA — only visible below 900px */}
+      <div
+        className="hidden max-[900px]:flex fixed bottom-0 left-0 right-0 z-40 items-center gap-3 px-4 py-3"
+        style={{
+          background: "rgba(255,255,255,0.96)",
+          backdropFilter: "blur(12px)",
+          borderTop: "1px solid var(--border)",
+          boxShadow: "0 -4px 24px rgba(0,0,0,0.08)",
+        }}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wide truncate" style={{ color: "var(--ink-soft)" }}>
+            {dateRange}
+          </p>
+          <p className="text-[13px] font-bold" style={{ color: "var(--ink)" }}>
+            {hasDiscount && (
+              <span className="line-through opacity-40 font-normal mr-1">₹{regularPriceInRupees}</span>
+            )}
+            ₹{priceInRupees} · All-in
+          </p>
+        </div>
+        <button
+          onClick={openBooking}
+          className="shrink-0 px-5 py-3 rounded-full text-sm font-bold text-white"
+          style={{ background: "var(--coral)", boxShadow: "0 4px 14px rgba(255,127,92,0.4)" }}
+        >
+          Register →
+        </button>
+      </div>
+
       <HeroSection
         workshop={workshop}
         priceInRupees={priceInRupees}
