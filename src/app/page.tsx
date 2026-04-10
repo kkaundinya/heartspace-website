@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "Heart Space — Guided Conversations for Better Relationships",
     description:
       "Guided conversations that help you relate better. Join Workshop 1: Surfacing Difficult Conversations.",
-    images: ["/shashi-velath.jpg"],
+    images: ["/shashi-velath.webp"],
   },
 };
 

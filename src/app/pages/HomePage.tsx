@@ -344,7 +344,7 @@ function ShashiTeaserSection() {
 
               {/* SV Text */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <img src="/shashi-velath.jpg" alt="Shashi Velath" className="w-full h-full object-cover" />
+                <img src="/shashi-velath.webp" alt="Shashi Velath" className="w-full h-full object-cover" />
               </div>
 
               {/* Bottom Bar */}

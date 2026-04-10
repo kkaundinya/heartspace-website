@@ -98,7 +98,7 @@ function HeroSection() {
                 style={{ aspectRatio: "3/4" }}
               >
                 <img
-                  src="/shashi-velath.jpg"
+                  src="/shashi-velath.webp"
                   alt="Shashi Velath"
                   className="w-full h-full object-cover"
                 />
@@ -220,7 +220,7 @@ function Chapter01Section() {
           <div className="mt-16 ">
             <div className="relative rounded-2xl overflow-hidden">
               <ImageWithFallback
-                src="/about-us-shashi-talk.png"
+                src="/about-us-shashi-talk.webp"
                 alt="Journalism and reporting"
                 className="w-full h-full object-cover"
               />
