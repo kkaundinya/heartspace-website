@@ -20,10 +20,11 @@ export default async function Workshop() {
   let workshop = null;
   try {
     const rows = await sql`
-      SELECT id, name, date_1, date_2, session_time, regular_price, discounted_price, is_active, zoom_link
-      FROM workshops
-      WHERE is_active = true
-      ORDER BY created_at DESC
+      SELECT w.id, w.name, w.date_1, w.date_2, w.session_time, w.regular_price, w.discounted_price, w.is_active, w.zoom_link,
+        (SELECT COUNT(*) FROM registrations r WHERE r.workshop_id = w.id AND r.payment_status = 'success')::int AS seats_taken
+      FROM workshops w
+      WHERE w.is_active = true
+      ORDER BY w.created_at DESC
       LIMIT 1
     `;
     if (rows.length > 0) workshop = rows[0] as WorkshopData;
@@ -36,13 +37,14 @@ export default async function Workshop() {
   const workshopData = workshop ?? {
     id: 1,
     name: "Workshop 1: Surfacing Difficult Conversations",
-    date_1: "2026-03-28",
-    date_2: "2026-03-29",
+    date_1: "2026-04-25",
+    date_2: "2026-04-26",
     session_time: "11:00 AM – 12:00 PM IST",
     regular_price: 999,
     discounted_price: 499,
     is_active: true,
     zoom_link: null,
+    seats_taken: 0,
   };
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://heart-spaces.com";

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { EarlyBirdBanner } from "@/components/EarlyBirdBanner";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { MicrosoftClarity } from "@/components/analytics/MicrosoftClarity";
+import { sql } from "@/lib/db";
 import "@/styles/index.css";
 
 export const metadata: Metadata = {
@@ -33,11 +35,33 @@ const orgJsonLd = {
   founder: { "@type": "Person", name: "Shashi Velath" },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Fetch active workshop for the early-bird banner
+  let workshopDate = "2026-04-25";
+  let workshopPrice = 499;
+  try {
+    const rows = await sql`
+      SELECT date_1, discounted_price, regular_price
+      FROM workshops
+      WHERE is_active = true
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    if (rows.length > 0) {
+      workshopDate = rows[0].date_1 as string;
+      workshopPrice = (rows[0].discounted_price ?? rows[0].regular_price) as number;
+    }
+  } catch {
+    // DB not configured — use fallback values
+  }
+
+  // Target: workshop start day at 11 AM IST (05:30 UTC)
+  const bannerTarget = `${workshopDate}T05:30:00Z`;
+
   return (
     <html lang="en">
       <head>
@@ -51,8 +75,10 @@ export default function RootLayout({
         <MetaPixel />
         <MicrosoftClarity />
         <div className="min-h-screen flex flex-col">
+          <EarlyBirdBanner targetDate={bannerTarget} price={workshopPrice} />
           <Navigation />
-          <main className="flex-1 pt-16">{children}</main>
+          {/* pt = banner(64px) + nav(64px) = 128px */}
+          <main className="flex-1 pt-[128px]">{children}</main>
           <Footer />
         </div>
       </body>

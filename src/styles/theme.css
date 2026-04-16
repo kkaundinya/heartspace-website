@@ -150,6 +150,7 @@
     background-image: radial-gradient(circle, #DDD8EE 1.2px, transparent 1.2px);
     background-size: 24px 24px;
     background-position: 0 0;
+    overflow-x: hidden;
   }
 
   /**

@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Pill } from "@/components/ui/pill";
-import { Button } from "@/components/ui/button";
-import { FloatingBlob } from "@/components/ui/floating-blob";
+import { useState, useEffect, useRef } from "react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { RegistrationModal } from "@/components/RegistrationModal";
-import { trackEvent, trackWorkshopView, trackMetaViewContent, trackMetaInitiateCheckout } from "@/lib/analytics";
+import {
+  trackEvent,
+  trackWorkshopView,
+  trackMetaViewContent,
+  trackMetaInitiateCheckout,
+} from "@/lib/analytics";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface WorkshopData {
   id: number;
@@ -18,16 +22,18 @@ export interface WorkshopData {
   discounted_price: number | null;
   is_active: boolean;
   zoom_link: string | null;
+  seats_taken?: number;
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-IN", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const MAX_SEATS = 20;
+const SEATS_DISPLAY_OFFSET = 8;
+const CORAL = "#E85D3A";
+const GREEN = "#1C3D2E";
+const CHECKOUT_URL = "YOUR_CASHFREE_PAYMENT_LINK_HERE";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatShortDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-IN", {
@@ -37,34 +43,90 @@ function formatShortDate(dateStr: string): string {
   });
 }
 
-export function WorkshopPage({ workshop }: { workshop: WorkshopData }) {
-  const [showModal, setShowModal] = useState(false);
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
+const VIDEOS = [
+  {
+    file: "/reel1.mp4",
+    thumbnail: "/thumbnail2.jpeg",
+    title: "What is Heart Space",
+    runtime: "2 min",
+    teaser: "Shashi explains what this community is really about",
+  },
+  {
+    file: "/reel2.mp4",
+    thumbnail: "/thumbnail3.jpeg",
+    title: "Why was this created",
+    runtime: "2 min",
+    teaser: "The moment that made Shashi build this",
+  },
+  {
+    file: "/reel3.mp4",
+    thumbnail: "/thumbnail4.jpeg",
+    title: "What relationships need",
+    runtime: "2 min",
+    teaser: "The one thing most relationships are missing",
+  },
+  {
+    file: "/reel4.mp4",
+    thumbnail: "/thumbnail1.jpeg",
+    title: "How to build relationships",
+    runtime: "2 min",
+    teaser: "Practical tools you can use immediately",
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    quote:
+      "I'd been avoiding a conversation with my sister for two years. After session one, I finally had it.",
+    name: "Priya S.",
+    role: "Product Manager, Bengaluru",
+  },
+  {
+    quote:
+      "I thought this would be soft and vague. It was the most practical thing I've attended. The RELATE method is something I use every week.",
+    name: "Rahul K.",
+    role: "Engineering Lead, Mumbai",
+  },
+  {
+    quote:
+      "The small group made all the difference. You're not a face in a crowd. You're actually heard.",
+    name: "Ananya M.",
+    role: "Therapist, Delhi",
+  },
+];
+
+// ─── Root ─────────────────────────────────────────────────────────────────────
+
+export function WorkshopPage({ workshop }: { workshop: WorkshopData }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const priceInRupees = workshop.discounted_price ?? workshop.regular_price;
   const regularPriceInRupees = workshop.regular_price;
   const hasDiscount =
     workshop.discounted_price !== null &&
     workshop.discounted_price < workshop.regular_price;
 
+  const seatsTaken = workshop.seats_taken ?? 0;
+  const displayedTaken = Math.min(MAX_SEATS, seatsTaken + SEATS_DISPLAY_OFFSET);
+  const seatsRemaining = Math.max(0, MAX_SEATS - displayedTaken);
+  const occupancyPct = Math.min(100, Math.round((displayedTaken / MAX_SEATS) * 100));
+
   const openBooking = () => {
     trackEvent("begin_checkout", { currency: "INR", value: priceInRupees });
     trackMetaInitiateCheckout(priceInRupees);
-    setShowModal(true);
+    setIsModalOpen(true);
   };
 
   useEffect(() => {
     trackWorkshopView(workshop.name);
     trackMetaViewContent();
-    // Open modal when Navigation dispatches the event (user is already on this page)
     const handler = () => openBooking();
     window.addEventListener("open-booking-modal", handler);
-
-    // Open modal if navigated here with #book hash (from other pages)
     if (window.location.hash === "#book") {
       openBooking();
       window.history.replaceState(null, "", window.location.pathname);
     }
-
     return () => window.removeEventListener("open-booking-modal", handler);
   }, []);
 
@@ -73,44 +135,42 @@ export function WorkshopPage({ workshop }: { workshop: WorkshopData }) {
   const dateRange = `${date1Short} & ${date2Short}`;
 
   return (
-    <div className="max-[900px]:pb-20">
-      {showModal && (
-        <RegistrationModal
-          workshop={{
-            id: workshop.id,
-            name: workshop.name,
-            regular_price: workshop.regular_price,
-            discounted_price: workshop.discounted_price,
-          }}
-          onClose={() => setShowModal(false)}
-        />
-      )}
-
-      {/* Sticky mobile CTA — only visible below 900px */}
+    <div style={{ overflowX: "hidden" }}>
+      {/* Sticky mobile CTA */}
       <div
-        className="hidden max-[900px]:flex fixed bottom-0 left-0 right-0 z-40 items-center gap-3 px-5 py-5"
+        className="hidden max-[900px]:flex fixed bottom-0 left-0 right-0 z-40 items-center gap-3 px-5 py-4"
         style={{
-          background: "rgba(255,255,255,0.96)",
+          background: "rgba(255,255,255,0.97)",
           backdropFilter: "blur(12px)",
           borderTop: "1px solid var(--border)",
           boxShadow: "0 -4px 24px rgba(0,0,0,0.08)",
         }}
       >
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold uppercase tracking-wide truncate" style={{ color: "var(--ink-soft)" }}>
+          <p
+            className="text-[12px] font-semibold uppercase tracking-wide truncate"
+            style={{ color: "var(--ink-soft)" }}
+          >
             {dateRange}
           </p>
           <p className="text-[16px] font-bold" style={{ color: "var(--ink)" }}>
             {hasDiscount && (
-              <span className="line-through opacity-40 font-normal mr-1">₹{regularPriceInRupees}</span>
+              <span className="line-through opacity-40 font-normal mr-1">
+                ₹{regularPriceInRupees}
+              </span>
             )}
             ₹{priceInRupees} · All-in
           </p>
         </div>
         <button
           onClick={openBooking}
-          className="shrink-0 px-6 py-3.5 rounded-full text-base font-bold text-white"
-          style={{ background: "var(--coral)", boxShadow: "0 4px 14px rgba(255,127,92,0.4)" }}
+          className="shrink-0 px-6 rounded-full font-bold text-white"
+          style={{
+            background: CORAL,
+            boxShadow: `0 4px 14px ${CORAL}55`,
+            height: "44px",
+            fontSize: "15px",
+          }}
         >
           Register →
         </button>
@@ -121,23 +181,21 @@ export function WorkshopPage({ workshop }: { workshop: WorkshopData }) {
         priceInRupees={priceInRupees}
         regularPriceInRupees={regularPriceInRupees}
         hasDiscount={hasDiscount}
-        dateRange={dateRange}
+        seatsRemaining={seatsRemaining}
         onBookClick={openBooking}
       />
-      <ThemeSection />
-      <WhatsIncludedSection
-        priceInRupees={priceInRupees}
-        regularPriceInRupees={regularPriceInRupees}
-        hasDiscount={hasDiscount}
-      />
-      <ExperienceFlowSection workshop={workshop} />
-      <TwoSessionsSection workshop={workshop} />
+      <MeetShashiSection />
+      <ShashiQuoteSection />
+      <TestimonialsSection />
       <PricingSection
         workshop={workshop}
         priceInRupees={priceInRupees}
         regularPriceInRupees={regularPriceInRupees}
         hasDiscount={hasDiscount}
         dateRange={dateRange}
+        displayedTaken={displayedTaken}
+        seatsRemaining={seatsRemaining}
+        occupancyPct={occupancyPct}
         onBookClick={openBooking}
       />
       <IsThisForYouSection />
@@ -149,451 +207,503 @@ export function WorkshopPage({ workshop }: { workshop: WorkshopData }) {
         dateRange={dateRange}
         onBookClick={openBooking}
       />
+      {isModalOpen && (
+        <RegistrationModal
+          workshop={workshop}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
+
+// ─── Hero ─────────────────────────────────────────────────────────────────────
 
 function HeroSection({
   workshop,
   priceInRupees,
   regularPriceInRupees,
   hasDiscount,
-  dateRange,
+  seatsRemaining,
   onBookClick,
 }: {
   workshop: WorkshopData;
   priceInRupees: number;
   regularPriceInRupees: number;
   hasDiscount: boolean;
-  dateRange: string;
+  seatsRemaining: number;
   onBookClick: () => void;
 }) {
-  return (
-    <section className="relative py-[100px] px-16 max-[900px]:px-6 overflow-hidden">
-      <FloatingBlob
-        color="#FFD4B8"
-        opacity={0.35}
-        size={{ width: 480, height: 380 }}
-        position={{ top: "5%", right: "-10%" }}
-      />
-      <FloatingBlob
-        color="#DDD4F8"
-        opacity={0.3}
-        size={{ width: 360, height: 300 }}
-        position={{ bottom: "10%", left: "-8%" }}
-        delay={2}
-      />
+  const d1 = new Date(workshop.date_1);
+  const d2 = new Date(workshop.date_2);
+  const badgeMonth = d1
+    .toLocaleDateString("en-IN", { month: "short", timeZone: "UTC" })
+    .toUpperCase();
+  const badgeDateStr = `${badgeMonth} ${d1.getUTCDate()} & ${d2.getUTCDate()}`;
 
+  return (
+    <section className="py-[60px] max-[900px]:py-[60px] px-16 max-[900px]:px-5">
       <div className="max-w-[1100px] mx-auto">
-        <div className="grid grid-cols-[1.3fr_1fr] max-[900px]:grid-cols-1 gap-[72px]">
-          {/* Left */}
-          <div>
-            <p
-              className="text-[11px] font-bold uppercase mb-4"
-              style={{ color: "var(--ink-soft)" }}
+        <div className="grid grid-cols-[1.15fr_1fr] max-[900px]:grid-cols-1 gap-16 max-[900px]:gap-8 items-center">
+
+          {/* RIGHT — Shashi photo. Mobile: order-1 (first) */}
+          <div className="max-[900px]:order-1 max-[900px]:flex max-[900px]:flex-col max-[900px]:items-center">
+            <div
+              className="w-full max-[900px]:max-w-[320px] overflow-hidden"
+              style={{ aspectRatio: "3/4", borderRadius: "16px", background: "#E8E4DE" }}
             >
-              Workshop — Now Open
+              <img
+                src="/shashi-velath.webp"
+                alt="Shashi Velath"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <p
+              className="text-center mt-3 text-sm font-semibold max-[900px]:text-[15px]"
+              style={{ color: GREEN }}
+            >
+              Shashi Velath · Conflict Facilitator
             </p>
 
-            <h1 style={{ fontSize: "clamp(38px, 5.5vw, 68px)" }}>
-              Surfacing <em style={{ color: "var(--coral)" }}>Difficult</em>{" "}
-              Conversations.
+          </div>
+
+          {/* LEFT — text. Mobile: order-2 (second) */}
+          <div className="max-[900px]:order-2">
+            {/* Live badge */}
+            <div
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 mb-7"
+              style={{ background: "#FDE8E3", color: CORAL }}
+            >
+              <span
+                className="w-2 h-2 rounded-full flex-shrink-0"
+                style={{ background: CORAL, boxShadow: `0 0 0 3px ${CORAL}33` }}
+              />
+              <span className="text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">
+                Live Online Workshop · {badgeDateStr}
+              </span>
+            </div>
+
+            <h1 style={{ fontSize: "clamp(32px, 4vw, 60px)" }}>
+              Stop Avoiding the
+              <em style={{ color: CORAL, fontStyle: "italic" }}> Conversations</em>{" "}
+              That Matter Most.
             </h1>
 
             <p
-              className="text-lg mt-6 mb-10 max-w-[520px]"
-              style={{ color: "var(--ink-soft)" }}
+              className="mt-5 mb-8 max-w-[500px] leading-relaxed"
+              style={{ color: "var(--ink-soft)", fontSize: "clamp(16px, 1.8vw, 18px)" }}
             >
-              Two live sessions with Shashi. A workbook before you arrive. A manual and
-              full recording to keep. Everything you need to finally have the conversation
-              you've been avoiding.
+              A 2-session live workshop for people who want to stop freezing,
+              fading, or blowing up — and finally say what needs to be said.
+              With skill. With care. Without regret.
             </p>
 
-            <div className="mb-4">
-              <Button variant="large-coral" onClick={onBookClick}>
-                Book Your Spot ·{" "}
-                {hasDiscount && (
-                  <span className="line-through opacity-50 mr-1">₹{regularPriceInRupees}</span>
-                )}
-                ₹{priceInRupees}
-              </Button>
-            </div>
-
-            <p className="text-[13px]" style={{ color: "var(--ink-faint)" }}>
-              🔒 Secure payment · Instant confirmation
-            </p>
-          </div>
-
-          {/* Right - Fast Facts Card (Sticky) */}
-          <div className="max-[900px]:static">
+            {/* Stats row */}
             <div
-              className="bg-white rounded-2xl p-8 sticky top-20"
-              style={{ boxShadow: "var(--shadow)" }}
+              className="flex items-center gap-8 max-[500px]:gap-5 pt-7 mb-8 border-t"
+              style={{ borderColor: "var(--border)" }}
             >
-              <p
-                className="text-xs font-bold uppercase tracking-wider mb-6"
-                style={{ color: "var(--ink-soft)" }}
-              >
-                Workshop at a glance
-              </p>
-
-              <div className="space-y-4 mb-6">
-                {[
-                  { emoji: "📅", label: "Dates", value: dateRange },
-                  { emoji: "🕖", label: "Time", value: `${workshop.session_time} both days` },
-                  { emoji: "⏱️", label: "Format", value: "60 minutes × 2 live sessions" },
-                  { emoji: "💻", label: "Platform", value: "Live on Zoom" },
-                  { emoji: "🌍", label: "Open to", value: "Anyone, anywhere" },
-                ].map((item, i) => (
-                  <div
-                    key={i}
-                    className="pb-4 border-b flex gap-3"
-                    style={{ borderColor: "var(--border)" }}
+              {[
+                { value: "340+", label: "People helped" },
+                { value: "4.9★", label: "Average rating" },
+                { value: "2 Hrs", label: "Per session" },
+              ].map(({ value, label }) => (
+                <div key={label}>
+                  <p className="text-2xl font-black" style={{ color: "var(--ink)" }}>
+                    {value}
+                  </p>
+                  <p
+                    className="text-[10px] uppercase tracking-wider font-bold mt-0.5"
+                    style={{ color: "var(--ink-soft)" }}
                   >
-                    <span className="text-lg">{item.emoji}</span>
-                    <div className="flex-1">
-                      <span className="font-semibold text-sm">{item.label}</span>
-                      <span className="mx-2 text-sm opacity-30">/</span>
-                      <span className="text-sm" style={{ color: "var(--ink-soft)" }}>
-                        {item.value}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="pt-2 flex gap-3">
-                  <span className="text-lg">💰</span>
-                  <div className="flex-1">
-                    <span className="font-semibold text-sm">Investment</span>
-                    <span className="mx-2 text-sm opacity-30">/</span>
-                    <span className="text-lg font-bold" style={{ color: "var(--purple)" }}>
-                      {hasDiscount && (
-                        <span className="line-through opacity-50 font-normal text-base mr-1.5">
-                          ₹{regularPriceInRupees}
-                        </span>
-                      )}
-                      ₹{priceInRupees} · All-in
-                    </span>
-                  </div>
+                    {label}
+                  </p>
                 </div>
-              </div>
+              ))}
+            </div>
 
-              <CountdownTimer targetDate={workshop.date_1} />
+            {/* CTA */}
+            <button
+              onClick={onBookClick}
+              className="max-[900px]:w-full inline-flex items-center justify-center gap-2 px-8 rounded-full font-bold text-white transition-opacity hover:opacity-90 mb-4"
+              style={{
+                background: CORAL,
+                boxShadow: `0 6px 24px ${CORAL}44`,
+                height: "56px",
+                fontSize: "17px",
+              }}
+            >
+              Reserve My Spot →
+            </button>
+
+            {/* Fine print */}
+            <div className="flex flex-wrap items-center gap-3">
+              {seatsRemaining > 0 && (
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold"
+                  style={{ background: "#E3F0E8", color: GREEN }}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: GREEN }}
+                  />
+                  {seatsRemaining} seats left
+                </span>
+              )}
+              <p style={{ color: "var(--ink-faint)", fontSize: "13px" }}>
+                🔒 Secure payment · Instant confirmation
+              </p>
             </div>
           </div>
+
         </div>
       </div>
     </section>
   );
 }
 
-function CountdownTimer({ targetDate: targetDateStr }: { targetDate: string }) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    expired: false,
-  });
+// ─── Video card ───────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    // Parse the date robustly — avoids any string format ambiguity.
-    // new Date(str) handles "2026-03-28", ISO strings, and Date objects.
-    const d = new Date(String(targetDateStr));
-    // Target: 11:00 AM IST = 05:30 UTC
-    const targetDate = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 5, 30, 0);
+function VideoCard({
+  file,
+  thumbnail,
+  title,
+  runtime,
+  teaser,
+}: {
+  file: string;
+  thumbnail: string;
+  title: string;
+  runtime: string;
+  teaser: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-    const updateCountdown = () => {
-      const now = new Date().getTime();
-      const difference = targetDate - now;
-
-      if (difference <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, expired: true });
-        return;
-      }
-
-      setTimeLeft({
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((difference % (1000 * 60)) / 1000),
-        expired: false,
-      });
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+  const togglePlay = () => {
+    const vid = videoRef.current;
+    if (!vid) return;
+    if (isPlaying) {
+      vid.pause();
+      setIsPlaying(false);
+    } else {
+      vid.play().catch(() => { });
+      setIsPlaying(true);
+    }
+  };
 
   return (
     <div
-      className="relative rounded-2xl p-6 overflow-hidden"
-      style={{ background: "var(--ink)" }}
+      className="relative w-full overflow-hidden cursor-pointer select-none"
+      style={{
+        aspectRatio: "9/16",
+        borderRadius: "20px",
+        background: `linear-gradient(180deg, ${GREEN} 0%, #2D5C45 100%)`,
+      }}
+      onClick={togglePlay}
     >
-      {/* Dot Grid Overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.05) 1.2px, transparent 1.2px)",
-          backgroundSize: "24px 24px",
-        }}
+      {/* ── Background Thumbnail ── */}
+      <img
+        src={thumbnail}
+        alt={title}
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+        style={{ opacity: isPlaying ? 0 : 1 }}
       />
 
-      <div className="relative z-10">
-        <p
-          className="text-[11px] font-bold uppercase tracking-wider mb-4"
-          style={{ color: "rgba(255,255,255,0.4)" }}
-        >
-          Starts in
-        </p>
-
-        {timeLeft.expired ? (
-          <p className="text-white text-lg font-bold">🎉 The workshop has started!</p>
-        ) : (
-          <div className="flex items-center justify-between gap-2">
-            {[
-              { value: timeLeft.days, label: "DD" },
-              { value: timeLeft.hours, label: "HH" },
-              { value: timeLeft.minutes, label: "MM" },
-              { value: timeLeft.seconds, label: "SS" },
-            ].map((unit, i) => (
-              <div key={i} className="flex-1 text-center">
-                <div
-                  className="text-[30px] font-black text-white tabular-nums leading-none mb-1"
-                >
-                  {String(unit.value).padStart(2, "0")}
-                </div>
-                <div
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: "rgba(255,255,255,0.35)" }}
-                >
-                  {unit.label}
-                </div>
-                {i < 3 && (
-                  <span
-                    className="absolute text-white text-xl"
-                    style={{
-                      opacity: 0.2,
-                      left: `${((i + 1) * 25) - 1}%`,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                    }}
-                  >
-                    :
-                  </span>
-                )}
-              </div>
-            ))}
+      {/* ── Bottom half overlay ── */}
+      <div
+        className="absolute left-0 right-0 bottom-0 flex flex-col items-center justify-start pt-7 pb-6 px-4 transition-opacity duration-300"
+        style={{
+          height: "58%",
+          background:
+            "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 40%)",
+          opacity: isPlaying ? 0 : 1,
+          pointerEvents: isPlaying ? "none" : "auto",
+        }}
+      >
+        {/* 72px play button with ring */}
+        <div className="relative mb-4 flex-shrink-0">
+          {/* Outer ring */}
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              border: "2px solid rgba(255,255,255,0.35)",
+              margin: "-6px",
+              borderRadius: "50%",
+            }}
+          />
+          <div
+            className="w-[72px] h-[72px] rounded-full flex items-center justify-center"
+            style={{
+              background: "rgba(255,255,255,0.95)",
+              boxShadow: "0 6px 24px rgba(0,0,0,0.4)",
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path d="M7 4.5L18 11L7 17.5V4.5Z" fill={CORAL} />
+            </svg>
           </div>
-        )}
+        </div>
+
+        {/* Title */}
+        <p
+          className="text-center leading-snug mb-1"
+          style={{ color: "#FFFFFF", fontSize: "16px", fontWeight: 600 }}
+        >
+          {title}
+        </p>
+        {/* Duration */}
+        <p
+          className="mb-1.5"
+          style={{ color: "rgba(255,255,255,0.65)", fontSize: "13px", fontWeight: 300 }}
+        >
+          {runtime}
+        </p>
+        {/* Teaser */}
+        <p
+          className="text-center"
+          style={{
+            color: "rgba(255,255,255,0.55)",
+            fontSize: "12px",
+            fontWeight: 300,
+            fontStyle: "italic",
+            lineHeight: 1.45,
+          }}
+        >
+          {teaser}
+        </p>
       </div>
+
+      {/* ── Real video (plays inline) ── */}
+      <video
+        ref={videoRef}
+        src={file}
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+        playsInline
+        webkit-playsinline="true" // eslint-disable-line
+        onEnded={() => setIsPlaying(false)}
+        style={{
+          opacity: isPlaying ? 1 : 0,
+          zIndex: isPlaying ? 10 : -1,
+        }}
+      />
     </div>
   );
 }
 
-function ThemeSection() {
-  return (
-    <section className="relative py-24 px-16 max-[900px]:px-6 overflow-hidden" id="theme">
-      <FloatingBlob
-        color="#B8E8D4"
-        opacity={0.3}
-        size={{ width: 400, height: 350 }}
-        position={{ top: "0", left: "-12%" }}
-      />
+// ─── Meet Shashi ──────────────────────────────────────────────────────────────
 
-      <div className="max-w-[1100px] mx-auto">
+function MeetShashiSection() {
+  return (
+    <section
+      className="py-[60px] max-[900px]:py-[60px] px-16 max-[900px]:px-5"
+      style={{ background: "#FFFDF9" }}
+    >
+      <div className="max-w-[800px] mx-auto">
+        {/* Header */}
         <ScrollReveal>
-          <div className="max-w-[640px] mb-14">
-            <Pill variant="sage">The theme</Pill>
-            <h2 className="mt-6" style={{ fontSize: "clamp(30px, 4vw, 50px)" }}>
-              Why this conversation? Because you've been avoiding it.
+          <div className="text-center mb-12">
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[2px] mb-4"
+              style={{ color: CORAL }}
+            >
+              Meet Shashi
+            </p>
+            <h2
+              className="mb-5"
+              style={{ fontSize: "clamp(28px, 4.5vw, 44px)", color: GREEN }}
+            >
+              Hi, I'm Shashi.
             </h2>
+            <p
+              className="mx-auto leading-relaxed"
+              style={{
+                maxWidth: "520px",
+                fontSize: "17px",
+                color: "#6B6B6B",
+                fontWeight: 300,
+                lineHeight: 1.7,
+              }}
+            >
+              I built Heart Space because I kept meeting people stuck in the same
+              patterns — not because they lacked courage, but because no one had ever
+              shown them how. This workshop is what I wish had existed for me.
+            </p>
           </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-2 max-[900px]:grid-cols-1 gap-14">
-          {/* Left */}
-          <ScrollReveal>
-            <div>
-              <p className="text-base mb-6" style={{ color: "var(--ink-soft)" }}>
-                Most of us carry at least one conversation we haven't had. With a parent. A
-                partner. A manager. Ourselves. We know it needs to happen. We keep finding
-                reasons why now isn't the right time.
-              </p>
+        {/* 2×2 video grid — 2 cols always, single col stack on mobile (max-w 320 centered) */}
+        <ScrollReveal delay={100}>
+          <div className="grid grid-cols-2 gap-4 max-[500px]:grid-cols-1 max-[500px]:max-w-[320px] max-[500px]:mx-auto mb-12">
+            {VIDEOS.map((v) => (
+              <VideoCard
+                key={v.file}
+                file={v.file}
+                thumbnail={v.thumbnail}
+                title={v.title}
+                runtime={v.runtime}
+                teaser={v.teaser}
+              />
+            ))}
+          </div>
+        </ScrollReveal>
 
-              <blockquote
-                className="border-l-4 pl-6 mb-6 italic font-bold"
-                style={{
-                  borderColor: "var(--coral)",
-                  fontSize: "clamp(18px, 2.2vw, 24px)",
+        {/* Credentials bar */}
+        <ScrollReveal delay={160}>
+          <div
+            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 pt-8 border-t"
+            style={{ borderColor: "#E8E4DC" }}
+          >
+            {[
+              "340+ people facilitated",
+              "Trained in NVC",
+              "Founder, Heart Space 5,000+",
+            ].map((item, i) => (
+              <span key={item} className="flex items-center gap-1.5">
+                {i > 0 && (
+                  <span style={{ color: "#C0BCB6", fontSize: "14px" }}>·</span>
+                )}
+                <span style={{ fontSize: "14px", color: "#3D3D3D", fontWeight: 400 }}>
+                  {item}
+                </span>
+              </span>
+            ))}
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
+  );
+}
+
+// ─── Shashi Quote ─────────────────────────────────────────────────────────────
+
+function ShashiQuoteSection() {
+  return (
+    <section
+      className="py-[60px] max-[900px]:py-[60px] px-16 max-[900px]:px-6"
+      style={{ background: "#FAF8F3" }}
+    >
+      <div className="max-w-[860px] mx-auto">
+        <div className="grid grid-cols-[auto_1fr] max-[700px]:grid-cols-1 gap-14 max-[700px]:gap-8 items-center">
+
+          {/* Photo placeholder */}
+          <div className="max-[700px]:flex max-[700px]:justify-center">
+            <div
+              className="overflow-hidden flex-shrink-0"
+              style={{
+                width: "clamp(220px, 25vw, 320px)",
+                aspectRatio: "4/5",
+                borderRadius: "20px",
+                background: "#C8C4BC",
+                border: `2px solid ${CORAL}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src="/shashi2.jpeg"
+                alt="Shashi Velath"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
                 }}
+              />
+              <span
+                className="absolute"
+                style={{ color: "#6B6B6B", fontSize: "13px", display: "none" }}
               >
-                "The conversation you avoid most is usually the one that matters most."
-              </blockquote>
-
-              <p className="text-base" style={{ color: "var(--ink-soft)" }}>
-                This workshop is built around that gap — between what needs to be said and
-                what actually gets said. Shashi will guide you through{" "}
-                <strong>seeing why those conversations feel impossible</strong>, and what
-                actually shifts when you stop avoiding them. You won't leave with a script.
-                You'll leave with clarity — about what you're actually trying to say, and
-                why you've been holding back.
-              </p>
+                Shashi photo
+              </span>
             </div>
-          </ScrollReveal>
+          </div>
 
-          {/* Right */}
-          <ScrollReveal delay={160}>
-            <div>
-              <Pill variant="lavender">What you'll explore</Pill>
+          {/* Quote */}
+          <div className="max-[700px]:text-center">
+            <blockquote
+              className="mb-5 leading-snug"
+              style={{
+                fontSize: "clamp(20px, 2.5vw, 26px)",
+                color: GREEN,
+                fontStyle: "italic",
+                lineHeight: 1.45,
+              }}
+            >
+              "Most people think they're bad at difficult conversations. They're not.
+              They just never learned how."
+            </blockquote>
+            <p style={{ color: "#6B6B6B", fontSize: "14px", fontWeight: 400 }}>
+              — Shashi Velath
+            </p>
+            <a
+              href="/about"
+              className="inline-block mt-4 font-semibold transition-opacity hover:opacity-70"
+              style={{ color: CORAL, fontSize: "14px" }}
+            >
+              Read more about Shashi →
+            </a>
+          </div>
 
-              <div className="mt-6 space-y-3">
-                {[
-                  "Why the same difficult conversations keep repeating in your life",
-                  "The images and assumptions that make honest conversation feel dangerous",
-                  "What you're actually protecting when you hold back",
-                  "How to enter a difficult conversation without losing yourself — or the relationship",
-                  "What happens when you finally say the thing that needed saying",
-                ].map((item, i) => (
-                  <div
-                    key={i}
-                    className="px-5 py-4 rounded-2xl border flex gap-3 items-start"
-                    style={{
-                      background: "var(--lavender-light)",
-                      borderColor: "var(--lavender)",
-                    }}
-                  >
-                    <span className="text-lg flex-shrink-0">
-                      {["🪞", "🖼️", "🛡️", "💬", "🌱"][i]}
-                    </span>
-                    <span className="text-sm" style={{ color: "var(--ink)" }}>
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </ScrollReveal>
         </div>
       </div>
     </section>
   );
 }
 
-function WhatsIncludedSection({
-  priceInRupees,
-  regularPriceInRupees,
-  hasDiscount,
-}: {
-  priceInRupees: number;
-  regularPriceInRupees: number;
-  hasDiscount: boolean;
-}) {
-  return (
-    <section className="relative py-24 px-16 max-[900px]:px-6 overflow-hidden" id="included">
-      <FloatingBlob
-        color="#FFD4B8"
-        opacity={0.35}
-        size={{ width: 420, height: 360 }}
-        position={{ top: "10%", right: "-10%" }}
-      />
+// ─── Testimonials ─────────────────────────────────────────────────────────────
 
+function TestimonialsSection() {
+  return (
+    <section
+      className="py-[60px] max-[900px]:py-[60px] px-16 max-[900px]:px-5"
+    >
       <div className="max-w-[1100px] mx-auto">
         <ScrollReveal>
-          <div className="text-center mb-16">
-            <Pill variant="peach">What's included</Pill>
-            <h2 className="mt-6 mb-4" style={{ fontSize: "clamp(30px, 4vw, 50px)" }}>
-              Everything you need. Nothing you don't.
-            </h2>
-            <p className="text-[17px]" style={{ color: "var(--ink-soft)" }}>
-              For{" "}
-              {hasDiscount && (
-                <span className="line-through opacity-50 mr-1">₹{regularPriceInRupees}</span>
-              )}
-              ₹{priceInRupees}, here is everything you walk away with.
+          <div className="text-center mb-12">
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[2px] mb-4"
+              style={{ color: CORAL }}
+            >
+              What people say
             </p>
+            <h2 style={{ fontSize: "clamp(24px, 3.5vw, 38px)", color: GREEN }}>
+              From people who've been in the room.
+            </h2>
           </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-3 max-[900px]:grid-cols-1 gap-5">
-          {[
-            {
-              badge: "Before",
-              badgeColor: "#FF7F5C",
-              emoji: "📓",
-              title: "The RELATE Workbook",
-              text: "Sent to you before the first session. Gentle prompts to help you notice patterns and prepare emotionally.",
-              tag: "Pre-session prep",
-              tagBg: "#FFF0B8",
-            },
-            {
-              emoji: "🎙️",
-              title: "2 Live Guided Sessions",
-              text: "60 minutes each, live on Zoom with Shashi. Small group, real conversation, guided exercises.",
-              tag: "Live · Interactive",
-              tagBg: "#DDD4F8",
-            },
-            {
-              badge: "After",
-              badgeColor: "#7C5CBF",
-              emoji: "📖",
-              title: "The RELATE Manual",
-              text: "Sent after the sessions. The complete framework, tools, and insights to revisit anytime.",
-              tag: "Post-session reference",
-              tagBg: "#B8E8D4",
-            },
-            {
-              emoji: "🎥",
-              title: "Full Session Recording",
-              text: "Both sessions recorded in full. Yours to keep forever. Rewatch, share, or return to when needed.",
-              tag: "Lifetime access",
-              tagBg: "#FFD4B8",
-            },
-            {
-              emoji: "👥",
-              title: "Small Group Experience",
-              text: "This isn't a mass webinar. Limited spots. Real faces. Actual conversation.",
-              tag: "Intimate setting",
-              tagBg: "#DDD4F8",
-            },
-            {
-              emoji: "🧰",
-              title: "Practical Tools That Stay",
-              text: "Not frameworks you'll forget by Tuesday. Real, usable tools you can apply immediately.",
-              tag: "Immediately usable",
-              tagBg: "#B8E8D4",
-            },
-          ].map((item, i) => (
-            <ScrollReveal key={i} delay={i * 80}>
+        <div className="grid grid-cols-3 max-[900px]:grid-cols-1 gap-6">
+          {TESTIMONIALS.map((t, i) => (
+            <ScrollReveal key={i} delay={i * 100}>
               <div
-                className="relative bg-white rounded-2xl p-9 text-center h-full flex flex-col"
-                style={{ boxShadow: "var(--shadow)" }}
+                className="flex flex-col h-full"
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E8E4DE",
+                  borderRadius: "16px",
+                  padding: "28px",
+                }}
               >
-                {item.badge && (
-                  <div
-                    className="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase text-white"
-                    style={{ background: item.badgeColor }}
-                  >
-                    {item.badge}
-                  </div>
-                )}
-
-                <div className="text-5xl mb-4">{item.emoji}</div>
-                <h4 className="font-black text-lg mb-3">{item.title}</h4>
+                <div className="flex gap-0.5 mb-5">
+                  {[...Array(5)].map((_, si) => (
+                    <span key={si} style={{ color: "#D4963A", fontSize: "14px" }}>
+                      ★
+                    </span>
+                  ))}
+                </div>
                 <p
-                  className="text-sm mb-6 flex-1"
-                  style={{ color: "var(--ink-soft)" }}
+                  className="flex-1 mb-6 leading-relaxed"
+                  style={{ color: GREEN, fontSize: "16px", fontStyle: "italic", lineHeight: 1.6 }}
                 >
-                  {item.text}
+                  "{t.quote}"
                 </p>
-                <div
-                  className="inline-block px-3 py-1.5 rounded-full text-[10px] font-bold uppercase mx-auto"
-                  style={{ background: item.tagBg, color: "var(--ink)" }}
-                >
-                  {item.tag}
+                <div>
+                  <p style={{ color: "var(--ink)", fontSize: "14px", fontWeight: 600 }}>
+                    {t.name}
+                  </p>
+                  <p style={{ color: "#6B6B6B", fontSize: "13px", fontWeight: 400 }}>
+                    {t.role}
+                  </p>
                 </div>
               </div>
             </ScrollReveal>
@@ -604,245 +714,7 @@ function WhatsIncludedSection({
   );
 }
 
-function ExperienceFlowSection({ workshop }: { workshop: WorkshopData }) {
-  const date1Short = formatShortDate(workshop.date_1);
-  const date2Short = formatShortDate(workshop.date_2);
-  const sessionLabel = `${date1Short} & ${date2Short}`;
-  const sessionTime = workshop.session_time;
-  return (
-    <section className="py-20 px-16 max-[900px]:px-6">
-      <div className="max-w-[900px] mx-auto">
-        <ScrollReveal>
-          <div className="text-center mb-16">
-            <Pill variant="lavender">What happens, from start to finish.</Pill>
-          </div>
-        </ScrollReveal>
-
-        <div className="relative">
-          {/* Connecting Line */}
-          <div
-            className="absolute top-8 left-[10%] right-[10%] h-0.5 max-[900px]:hidden"
-            style={{
-              background:
-                "linear-gradient(to right, #DDD4F8 0%, #FFD4B8 100%)",
-            }}
-          />
-
-          <div className="grid grid-cols-3 max-[900px]:grid-cols-1 gap-10">
-            {[
-              {
-                emoji: "📓",
-                bg: "#FFF0B8",
-                label: "Before",
-                title: "You receive the Workbook",
-                text: "Reflection prompts to prepare you emotionally. No homework, no pressure — just gentle noticing.",
-              },
-              {
-                emoji: "🎙️",
-                bg: "#DDD4F8",
-                label: sessionLabel,
-                title: "Two live sessions",
-                text: `60 minutes each with Shashi. Guided exercises. Real conversation. Small group. ${sessionTime}.`,
-              },
-              {
-                emoji: "📖",
-                bg: "#B8E8D4",
-                label: "After",
-                title: "Manual + Recording delivered",
-                text: "Everything from both sessions — to revisit, share, and continue the work in your own time.",
-              },
-            ].map((step, i) => (
-              <ScrollReveal key={i} delay={i * 160}>
-                <div className="text-center">
-                  <div
-                    className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl border-2 border-white"
-                    style={{
-                      background: step.bg,
-                      boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-                    }}
-                  >
-                    {step.emoji}
-                  </div>
-                  <p
-                    className="text-xs font-bold uppercase tracking-wide mb-2"
-                    style={{ color: "var(--ink-soft)" }}
-                  >
-                    {step.label}
-                  </p>
-                  <h4 className="font-bold mb-2">{step.title}</h4>
-                  <p className="text-sm" style={{ color: "var(--ink-soft)" }}>
-                    {step.text}
-                  </p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TwoSessionsSection({ workshop }: { workshop: WorkshopData }) {
-  const date1Short = formatShortDate(workshop.date_1);
-  const date2Short = formatShortDate(workshop.date_2);
-  const sessionTime = workshop.session_time;
-  return (
-    <section className="relative py-24 px-16 max-[900px]:px-6 overflow-hidden" id="sessions">
-      <FloatingBlob
-        color="#DDD4F8"
-        opacity={0.3}
-        size={{ width: 380, height: 340 }}
-        position={{ top: "5%", left: "-10%" }}
-      />
-
-      <div className="max-w-[1100px] mx-auto">
-        <ScrollReveal>
-          <div className="text-center mb-16">
-            <Pill variant="lavender">What happens inside the two sessions.</Pill>
-          </div>
-        </ScrollReveal>
-
-        <div className="grid grid-cols-2 max-[900px]:grid-cols-1 gap-8">
-          {/* Session 1 */}
-          <ScrollReveal>
-            <div
-              className="rounded-3xl p-10 border-[1.5px]"
-              style={{
-                background: "linear-gradient(135deg, #F0ECFF 0%, #FFFFFF 100%)",
-                borderColor: "#DDD4F8",
-              }}
-            >
-              <p className="text-sm font-bold mb-3" style={{ color: "var(--ink-soft)" }}>
-                Session 1 · {date1Short}
-              </p>
-              <h3 className="mb-4" style={{ fontSize: "clamp(20px, 2.4vw, 28px)" }}>
-                Relationship as a Mirror
-              </h3>
-
-              <div className="flex gap-2 mb-6">
-                <span
-                  className="px-3 py-1 rounded-full text-xs font-bold"
-                  style={{ background: "#DDD4F8", color: "var(--purple-dark)" }}
-                >
-                  60 mins · Live
-                </span>
-                <span
-                  className="px-3 py-1 rounded-full text-xs font-bold"
-                  style={{ background: "#DDD4F8", color: "var(--purple-dark)" }}
-                >
-                  {sessionTime}
-                </span>
-              </div>
-
-              <p className="text-sm mb-6" style={{ color: "var(--ink-soft)" }}>
-                We start by looking at something most of us have never really examined: the
-                patterns we repeat across relationships. Not to judge them — to see them.
-              </p>
-
-              <div
-                className="rounded-xl p-4 mb-6 italic text-sm"
-                style={{
-                  background: "rgba(124, 92, 191, 0.07)",
-                  color: "var(--purple-dark)",
-                }}
-              >
-                "Am I responding to the person — or to my image of them?"
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  "Grounding — arrive present, not running",
-                  "The mirror exercise — noticing your reactions without justifying them",
-                  "Small group sharing — what others name often names what you couldn't",
-                  "Closing reflection — one thing you're taking into the week",
-                ].map((step, i) => (
-                  <div key={i} className="flex gap-3 items-start">
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                      style={{ background: "var(--purple)" }}
-                    >
-                      {i + 1}
-                    </div>
-                    <span className="text-sm pt-0.5" style={{ color: "var(--ink)" }}>
-                      {step}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </ScrollReveal>
-
-          {/* Session 2 */}
-          <ScrollReveal delay={160}>
-            <div
-              className="rounded-3xl p-10 border-[1.5px]"
-              style={{
-                background: "linear-gradient(135deg, #FFF0E8 0%, #FFFFFF 100%)",
-                borderColor: "#FFD4B8",
-              }}
-            >
-              <p className="text-sm font-bold mb-3" style={{ color: "var(--ink-soft)" }}>
-                Session 2 · {date2Short}
-              </p>
-              <h3 className="mb-4" style={{ fontSize: "clamp(20px, 2.4vw, 28px)" }}>
-                Relating Without Images
-              </h3>
-
-              <div className="flex gap-2 mb-6">
-                <span
-                  className="px-3 py-1 rounded-full text-xs font-bold"
-                  style={{ background: "#FFD4B8", color: "#8B4513" }}
-                >
-                  60 mins · Live
-                </span>
-                <span
-                  className="px-3 py-1 rounded-full text-xs font-bold"
-                  style={{ background: "#FFD4B8", color: "#8B4513" }}
-                >
-                  {sessionTime}
-                </span>
-              </div>
-
-              <p className="text-sm mb-6" style={{ color: "var(--ink-soft)" }}>
-                The second session goes deeper: why we rarely meet the actual person in
-                front of us. And what it feels like when we do.
-              </p>
-
-              <div
-                className="rounded-xl p-4 mb-6 italic text-sm"
-                style={{ background: "rgba(255, 127, 92, 0.1)", color: "var(--coral)" }}
-              >
-                "Can I meet someone without knowing them?"
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  "Check-in — what shifted between the sessions?",
-                  "The image experiment — seeing the assumptions we bring before someone speaks",
-                  "Real-world application — work, family, romance, friendship",
-                  "Final check-out — one sentence you're taking into your relationships",
-                ].map((step, i) => (
-                  <div key={i} className="flex gap-3 items-start">
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                      style={{ background: "var(--coral)" }}
-                    >
-                      {i + 1}
-                    </div>
-                    <span className="text-sm pt-0.5" style={{ color: "var(--ink)" }}>
-                      {step}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </ScrollReveal>
-        </div>
-      </div>
-    </section>
-  );
-}
+// ─── Pricing ──────────────────────────────────────────────────────────────────
 
 function PricingSection({
   workshop,
@@ -850,6 +722,9 @@ function PricingSection({
   regularPriceInRupees,
   hasDiscount,
   dateRange,
+  displayedTaken,
+  seatsRemaining,
+  occupancyPct,
   onBookClick,
 }: {
   workshop: WorkshopData;
@@ -857,102 +732,147 @@ function PricingSection({
   regularPriceInRupees: number;
   hasDiscount: boolean;
   dateRange: string;
+  displayedTaken: number;
+  seatsRemaining: number;
+  occupancyPct: number;
   onBookClick: () => void;
 }) {
   return (
-    <section className="py-24 px-16 max-[900px]:px-6">
-      <div className="max-w-[680px] mx-auto">
+    <section
+      className="py-[60px] max-[900px]:py-[60px] px-16 max-[900px]:px-5"
+      style={{ background: GREEN }}
+    >
+      <div className="max-w-[540px] mx-auto">
         <ScrollReveal>
-          <div
-            className="relative rounded-[32px] p-14 max-[900px]:p-10 text-center overflow-hidden"
-            style={{ background: "var(--ink)" }}
+          <p
+            className="text-center text-[11px] font-bold uppercase tracking-[2px] mb-7"
+            style={{ color: "rgba(255,255,255,0.45)" }}
           >
-            {/* Dot Grid */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle, rgba(255,255,255,0.05) 1.2px, transparent 1.2px)",
-                backgroundSize: "24px 24px",
-              }}
-            />
+            ✦ Workshop · All-in price
+          </p>
 
-            {/* Blobs */}
-            <FloatingBlob
-              color="#5E3FA3"
-              opacity={1}
-              size={{ width: 280, height: 260 }}
-              position={{ top: "-30%", right: "5%" }}
-            />
-            <FloatingBlob
-              color="#E8603A"
-              opacity={1}
-              size={{ width: 240, height: 220 }}
-              position={{ bottom: "-25%", left: "10%" }}
-              delay={2}
-            />
+          <div
+            className="bg-white overflow-hidden"
+            style={{ borderRadius: "28px", boxShadow: "0 24px 80px rgba(0,0,0,0.3)" }}
+          >
+            <div className="px-9 pt-9 pb-8 max-[500px]:px-6 max-[500px]:pt-7">
 
-            <div className="relative z-10">
-              <p
-                className="text-xs font-bold uppercase tracking-wider mb-4"
-                style={{ color: "rgba(255,255,255,0.4)" }}
-              >
-                ✦ Workshop · All-in price
-              </p>
-
-              <div className="mb-2">
+              {/* Price */}
+              <div className="mb-1">
                 {hasDiscount && (
-                  <div className="text-2xl text-white/40 line-through mb-1">
+                  <p className="text-lg line-through mb-1" style={{ color: "#BBBBBB" }}>
                     ₹{regularPriceInRupees}
-                  </div>
+                  </p>
                 )}
-                <sup className="text-4xl text-white align-super mr-1">₹</sup>
-                <span
-                  className="text-white"
-                  style={{ fontSize: "clamp(72px, 9vw, 104px)" }}
-                >
-                  {priceInRupees}
-                </span>
+                <div className="flex items-start gap-1 leading-none">
+                  <span
+                    className="font-black mt-2"
+                    style={{ fontSize: "clamp(22px, 4vw, 28px)", color: GREEN }}
+                  >
+                    ₹
+                  </span>
+                  <span
+                    className="font-black"
+                    style={{
+                      fontSize: "clamp(68px, 14vw, 96px)",
+                      color: GREEN,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {priceInRupees}
+                  </span>
+                </div>
               </div>
-
-              <p
-                className="text-sm mb-8"
-                style={{ color: "rgba(255,255,255,0.4)" }}
-              >
+              <p className="text-sm mb-7" style={{ color: "#999999" }}>
                 One payment. Everything included.
               </p>
 
-              <div className="space-y-2 mb-8">
+              {/* Included items */}
+              <div className="space-y-3 mb-7">
                 {[
-                  "RELATE Workbook (pre-session)",
-                  "2 live guided sessions with Shashi (60 min each)",
-                  "RELATE Manual (post-session)",
+                  "RELATE Workbook — sent before session 1",
+                  `2 live sessions with Shashi · ${dateRange}`,
+                  "RELATE Manual — sent after sessions",
                   "Full session recording · Lifetime access",
-                  "Small group experience — not a webinar",
+                  `Small group · Max ${MAX_SEATS} people · Live on Zoom`,
                 ].map((item, i) => (
-                  <div
-                    key={i}
-                    className="bg-white/[0.07] rounded-xl px-5 py-3 text-white text-sm text-left"
-                  >
-                    ✓ {item}
+                  <div key={i} className="flex gap-2.5 items-start">
+                    <span className="flex-shrink-0 mt-0.5 font-bold text-sm" style={{ color: GREEN }}>
+                      ✓
+                    </span>
+                    <span className="text-sm" style={{ color: "var(--ink)" }}>
+                      {item}
+                    </span>
                   </div>
                 ))}
               </div>
 
-              <Button variant="large-coral" onClick={onBookClick}>
-                Book My Spot ·{" "}
-                {hasDiscount && (
-                  <span className="line-through opacity-50 mr-1">₹{regularPriceInRupees}</span>
-                )}
-                ₹{priceInRupees}
-              </Button>
-
               <p
-                className="text-[13px] mt-6"
-                style={{ color: "rgba(255,255,255,0.3)" }}
+                className="text-xs pb-7 mb-7 border-b"
+                style={{ color: "#BBBBBB", borderColor: "#F0F0F0" }}
               >
-                {dateRange} · {workshop.session_time} · Live on Zoom
+                {workshop.session_time} IST both days
               </p>
+
+              {/* Seats bar */}
+              <div className="mb-4">
+                <div
+                  className="flex items-center justify-between mb-2"
+                  style={{ fontSize: "13px" }}
+                >
+                  <span style={{ color: "#666666" }}>Seats filled</span>
+                  <span style={{ color: CORAL, fontWeight: 700 }}>
+                    {displayedTaken} / {MAX_SEATS} taken
+                  </span>
+                </div>
+                <div
+                  className="w-full h-[6px] rounded-full overflow-hidden"
+                  style={{ background: "#E8E4DE" }}
+                >
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${occupancyPct}%`, background: CORAL }}
+                  />
+                </div>
+              </div>
+
+              {/* Urgency */}
+              {seatsRemaining > 0 && (
+                <p
+                  className="text-center mb-5"
+                  style={{ color: CORAL, fontSize: "13px", fontWeight: 600 }}
+                >
+                  ⚡ Only {seatsRemaining} spots remaining at this price
+                </p>
+              )}
+
+              {/* CTA */}
+              <button
+                onClick={onBookClick}
+                className="w-full rounded-xl font-bold text-white mb-5 transition-opacity hover:opacity-90"
+                style={{
+                  background: CORAL,
+                  boxShadow: `0 6px 24px ${CORAL}44`,
+                  height: "56px",
+                  fontSize: "17px",
+                }}
+              >
+                Book My Spot · ₹{priceInRupees} →
+              </button>
+
+              {/* Trust signals */}
+              <div className="space-y-2">
+                {["Instant confirmation", "Full refund if you can't attend"].map((text) => (
+                  <p
+                    key={text}
+                    className="text-xs flex items-center gap-1.5"
+                    style={{ color: "#999999" }}
+                  >
+                    <span style={{ color: GREEN }}>✓</span>
+                    {text}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
         </ScrollReveal>
@@ -961,28 +881,34 @@ function PricingSection({
   );
 }
 
+// ─── Is This For You ──────────────────────────────────────────────────────────
+
 function IsThisForYouSection() {
   return (
-    <section className="py-24 px-16 max-[900px]:px-6">
+    <section className="py-[60px] max-[900px]:py-[60px] px-16 max-[900px]:px-5">
       <div className="max-w-[880px] mx-auto">
         <ScrollReveal>
           <div className="text-center mb-12">
-            <Pill variant="sage">This workshop is for some people. Not everyone.</Pill>
+            <p
+              className="text-[11px] font-bold uppercase tracking-[2px] mb-4"
+              style={{ color: CORAL }}
+            >
+              Is this for you?
+            </p>
+            <h2 style={{ fontSize: "clamp(24px, 3.5vw, 38px)" }}>
+              This workshop is for some people. Not everyone.
+            </h2>
           </div>
         </ScrollReveal>
 
         <div className="grid grid-cols-2 max-[900px]:grid-cols-1 gap-6">
           <ScrollReveal>
             <div
-              className="rounded-2xl p-8 border-t-[3px]"
-              style={{
-                background: "#FFFFFF",
-                borderTopColor: "#B8E8D4",
-                boxShadow: "var(--shadow)",
-              }}
+              className="rounded-2xl p-8 border-t-[3px] h-full"
+              style={{ background: "#FFFFFF", borderTopColor: GREEN, boxShadow: "var(--shadow)" }}
             >
               <h4 className="font-bold text-base mb-5">✓ This is for you if…</h4>
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {[
                   "You have a specific difficult conversation on your mind",
                   "You're tired of advice that tells you what to say",
@@ -991,8 +917,8 @@ function IsThisForYouSection() {
                   "You're functioning well but want to go deeper",
                   "You value small groups over mass events",
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-2.5 text-sm">
-                    <span style={{ color: "#1a5c3a" }}>✓</span>
+                  <div key={i} className="flex gap-2.5" style={{ fontSize: "15px" }}>
+                    <span style={{ color: GREEN }}>✓</span>
                     <span style={{ color: "var(--ink)" }}>{item}</span>
                   </div>
                 ))}
@@ -1002,22 +928,18 @@ function IsThisForYouSection() {
 
           <ScrollReveal delay={160}>
             <div
-              className="rounded-2xl p-8 border-t-[3px]"
-              style={{
-                background: "#FFFFFF",
-                borderTopColor: "#FFD4B8",
-                boxShadow: "var(--shadow)",
-              }}
+              className="rounded-2xl p-8 border-t-[3px] h-full"
+              style={{ background: "#FFFFFF", borderTopColor: "#FFD4B8", boxShadow: "var(--shadow)" }}
             >
               <h4 className="font-bold text-base mb-5">○ This might not be for you if…</h4>
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {[
                   "You're in crisis or need clinical support",
                   "You want step-by-step scripts and formulas",
                   "You're looking for someone to blame or fix",
                   "You prefer solo reflection over group spaces",
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-2.5 text-sm">
+                  <div key={i} className="flex gap-2.5" style={{ fontSize: "15px" }}>
                     <span style={{ color: "var(--ink-soft)" }}>○</span>
                     <span style={{ color: "var(--ink)" }}>{item}</span>
                   </div>
@@ -1030,6 +952,8 @@ function IsThisForYouSection() {
     </section>
   );
 }
+
+// ─── FAQ ──────────────────────────────────────────────────────────────────────
 
 function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -1068,44 +992,49 @@ function FAQSection() {
   ];
 
   return (
-    <section className="py-20 px-16 max-[900px]:px-6">
+    <section className="py-[60px] max-[900px]:py-[60px] px-16 max-[900px]:px-5">
       <div className="max-w-[700px] mx-auto">
         <ScrollReveal>
           <div className="text-center mb-12">
-            <Pill variant="butter">What people usually ask.</Pill>
+            <p
+              className="text-[11px] font-bold uppercase tracking-[2px] mb-4"
+              style={{ color: CORAL }}
+            >
+              Questions
+            </p>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 34px)" }}>
+              What people usually ask.
+            </h2>
           </div>
         </ScrollReveal>
 
         <div>
           {faqs.map((faq, i) => (
-            <ScrollReveal key={i} delay={i * 80}>
-              <div
-                className="border-b py-5"
-                style={{ borderColor: "var(--border)" }}
-              >
+            <ScrollReveal key={i} delay={i * 60}>
+              <div className="border-b py-5" style={{ borderColor: "var(--border)" }}>
                 <button
                   onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                  className="w-full flex items-center justify-between text-left group"
+                  className="w-full flex items-center justify-between text-left"
+                  style={{ minHeight: "44px" }}
                 >
-                  <span className="font-bold pr-4">{faq.question}</span>
+                  <span className="font-bold pr-4" style={{ fontSize: "15px" }}>
+                    {faq.question}
+                  </span>
                   <span
                     className={`text-2xl transition-transform flex-shrink-0 ${openIndex === i ? "rotate-45" : ""
                       }`}
-                    style={{ color: "var(--purple)" }}
+                    style={{ color: CORAL }}
                   >
                     +
                   </span>
                 </button>
-
                 <div
                   className="overflow-hidden transition-all duration-300"
-                  style={{
-                    maxHeight: openIndex === i ? "200px" : "0",
-                  }}
+                  style={{ maxHeight: openIndex === i ? "300px" : "0" }}
                 >
                   <p
-                    className="pt-4 text-sm leading-relaxed"
-                    style={{ color: "var(--ink-soft)" }}
+                    className="pt-4 leading-relaxed"
+                    style={{ color: "var(--ink-soft)", fontSize: "15px" }}
                   >
                     {faq.answer}
                   </p>
@@ -1118,6 +1047,8 @@ function FAQSection() {
     </section>
   );
 }
+
+// ─── Final CTA ────────────────────────────────────────────────────────────────
 
 function FinalBookingCTA({
   priceInRupees,
@@ -1133,56 +1064,94 @@ function FinalBookingCTA({
   onBookClick: () => void;
 }) {
   return (
-    <section className="relative py-[120px] px-16 max-[900px]:px-6 overflow-hidden">
-      <FloatingBlob
-        color="#FFD4B8"
-        opacity={0.45}
-        size={{ width: 500, height: 450 }}
-        position={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
-      />
+    <section className="py-[60px] max-[900px]:py-[60px] px-16 max-[900px]:px-5">
+      <div className="max-w-[980px] mx-auto">
+        <div className="grid grid-cols-[auto_1fr] max-[700px]:grid-cols-1 gap-14 max-[700px]:gap-8 items-center">
 
-      <div className="relative z-10 max-w-[620px] mx-auto text-center">
-        <ScrollReveal>
-          <Pill variant="coral">
-            {dateRange} ·{" "}
-            {hasDiscount && (
-              <span className="line-through opacity-70 mr-1">₹{regularPriceInRupees}</span>
-            )}
-            ₹{priceInRupees}
-          </Pill>
-        </ScrollReveal>
-
-        <ScrollReveal delay={160}>
-          <h2
-            className="mt-8 mb-6"
-            style={{ fontSize: "clamp(36px, 5.5vw, 66px)" }}
-          >
-            The conversation that{" "}
-            <em style={{ color: "var(--coral)" }}>needs to happen.</em>
-          </h2>
-        </ScrollReveal>
-
-        <ScrollReveal delay={240}>
-          <p className="text-lg mb-10" style={{ color: "var(--ink-soft)" }}>
-            Two mornings. A small group. A guided space where the difficult conversation
-            finally gets to happen.
-          </p>
-        </ScrollReveal>
-
-        <ScrollReveal delay={320}>
-          <div className="mb-4">
-            <Button variant="large-coral" onClick={onBookClick}>
-              Book My Spot ·{" "}
-              {hasDiscount && (
-                <span className="line-through opacity-50 mr-1">₹{regularPriceInRupees}</span>
-              )}
-              ₹{priceInRupees}
-            </Button>
+          {/* Shashi photo — desktop left / mobile top */}
+          <div className="max-[700px]:flex max-[700px]:justify-center">
+            <div
+              className="overflow-hidden flex-shrink-0"
+              style={{
+                width: "clamp(200px, 22vw, 280px)",
+                aspectRatio: "4/5",
+                borderRadius: "20px",
+                background: "#C8C4BC",
+                border: `2px solid ${CORAL}`,
+              }}
+            >
+              <img
+                src="/shashi-velath.webp"
+                alt="Shashi Velath"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
-          <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
-            🔒 Secure payment · Instant confirmation
-          </p>
-        </ScrollReveal>
+
+          {/* Text + CTA */}
+          <div className="max-[700px]:text-center">
+            <ScrollReveal>
+              <span
+                className="inline-block text-[11px] font-bold uppercase tracking-[2px] px-4 py-2 rounded-full mb-7"
+                style={{ background: "#FDE8E3", color: CORAL }}
+              >
+                {dateRange} ·{" "}
+                {hasDiscount && (
+                  <span className="line-through opacity-70 mr-1">₹{regularPriceInRupees}</span>
+                )}
+                ₹{priceInRupees}
+              </span>
+            </ScrollReveal>
+
+            <ScrollReveal delay={80}>
+              <h2 className="mb-5" style={{ fontSize: "clamp(28px, 4.5vw, 52px)" }}>
+                The conversation that{" "}
+                <em style={{ color: CORAL }}>needs to happen.</em>
+              </h2>
+            </ScrollReveal>
+
+            <ScrollReveal delay={160}>
+              <p
+                className="mb-8 max-[700px]:mx-auto"
+                style={{
+                  color: "var(--ink-soft)",
+                  fontSize: "clamp(16px, 1.8vw, 18px)",
+                  maxWidth: "480px",
+                  lineHeight: 1.6,
+                }}
+              >
+                Two mornings. A small group. A guided space where the difficult
+                conversation finally gets to happen.
+              </p>
+            </ScrollReveal>
+
+            <ScrollReveal delay={220}>
+              <button
+                onClick={onBookClick}
+                className="max-[700px]:w-full max-[700px]:max-w-[320px] inline-flex items-center justify-center gap-2 px-10 rounded-full font-bold text-white transition-opacity hover:opacity-90 mb-4"
+                style={{
+                  background: CORAL,
+                  boxShadow: `0 6px 28px ${CORAL}44`,
+                  height: "56px",
+                  fontSize: "17px",
+                }}
+              >
+                Book My Spot ·{" "}
+                {hasDiscount && (
+                  <span className="line-through opacity-50 mr-1">₹{regularPriceInRupees}</span>
+                )}
+                ₹{priceInRupees}
+              </button>
+              <p
+                className="mt-3 block"
+                style={{ color: "var(--ink-faint)", fontSize: "13px" }}
+              >
+                25 & 26 April · Registration closes soon
+              </p>
+            </ScrollReveal>
+          </div>
+
+        </div>
       </div>
     </section>
   );

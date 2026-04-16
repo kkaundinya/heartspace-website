@@ -28,7 +28,7 @@ export function Navigation() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 h-16 bg-white/93 backdrop-blur-md border-b transition-shadow ${
+      className={`fixed top-16 left-0 right-0 z-50 h-16 bg-white/93 backdrop-blur-md border-b transition-shadow ${
         hasScrolled ? "shadow-[0_4px_24px_rgba(124,92,191,0.08)]" : ""
       }`}
       style={{ borderColor: "var(--border)" }}
@@ -58,9 +58,9 @@ export function Navigation() {
           onClick={handleCtaClick}
           className="btn-pr text-[13px] px-[22px] py-[11px] rounded-full font-bold transition-all hover:shadow-lg group"
           style={{
-            background: "var(--purple)",
+            background: "#E85D3A",
             color: "#FFFFFF",
-            boxShadow: "0 4px 20px rgba(124, 92, 191, 0.3)",
+            boxShadow: "0 4px 20px rgba(232, 93, 58, 0.3)",
           }}
         >
           Join Workshop{" "}
