@@ -52,7 +52,12 @@ export default async function RootLayout({
       LIMIT 1
     `;
     if (rows.length > 0) {
-      workshopDate = rows[0].date_1 as string;
+      const rawDate = rows[0].date_1;
+      if (rawDate instanceof Date) {
+        workshopDate = `${rawDate.getFullYear()}-${String(rawDate.getMonth() + 1).padStart(2, '0')}-${String(rawDate.getDate()).padStart(2, '0')}`;
+      } else if (typeof rawDate === "string") {
+        workshopDate = rawDate.split("T")[0];
+      }
       workshopPrice = (rows[0].discounted_price ?? rows[0].regular_price) as number;
     }
   } catch {
