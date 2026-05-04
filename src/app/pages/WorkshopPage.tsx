@@ -1146,7 +1146,7 @@ function FinalBookingCTA({
                 className="mt-3 block"
                 style={{ color: "var(--ink-faint)", fontSize: "13px" }}
               >
-                25 & 26 April · Registration closes soon
+                {dateRange} · Registration closes soon
               </p>
             </ScrollReveal>
           </div>
