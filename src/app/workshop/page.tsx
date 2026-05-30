@@ -12,7 +12,18 @@ export const metadata: Metadata = {
     title: "Workshop 1: Surfacing Difficult Conversations | Heart Space",
     description:
       "Two live Zoom sessions with Shashi Velath. April 25 & 26, 2026. ₹499 all-inclusive.",
-    images: ["/shashi-velath.webp"],
+    images: [
+      {
+        url: "/heart-space-og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Heart Space",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/heart-space-og-image.png"],
   },
 };
 

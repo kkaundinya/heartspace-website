@@ -22,6 +22,18 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     siteName: "Heart Space",
+    images: [
+      {
+        url: "/heart-space-og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Heart Space",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/heart-space-og-image.png"],
   },
 };
 

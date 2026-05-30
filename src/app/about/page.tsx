@@ -9,7 +9,18 @@ export const metadata: Metadata = {
     title: "About Shashi Velath | Heart Space",
     description:
       "The story behind Heart Space — from war zones to boardrooms to guided conversations.",
-    images: ["/shashi-velath.webp"],
+    images: [
+      {
+        url: "/heart-space-og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Heart Space",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/heart-space-og-image.png"],
   },
 };
 
